@@ -36,7 +36,7 @@ module App =
       |> Seq.collect (fun (x,y) -> 
         //[ if x.Id = 1 then yield x else ()
         //  if x.Text = " " then yield { y with HasSpaceBefore = true; } else yield y ]
-        [ if x.Text = " " then { y with HasSpaceBefore = true; } else y ]
+        [ (if x.Text = " " then { y with HasSpaceBefore = true; } else y) ]
       )
       |> Seq.filter (fun x -> x.Text.Trim() <> "")
       |> Seq.toList 
