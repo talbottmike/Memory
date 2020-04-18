@@ -101,6 +101,11 @@ module App =
     // Note, this declaration is needed if you enable LiveUpdate
     let program = Program.mkProgram init update view
 
+open System
+open Microsoft.AppCenter
+open Microsoft.AppCenter.Analytics
+open Microsoft.AppCenter.Crashes
+
 type App () as app = 
     inherit Application ()
 
@@ -119,9 +124,10 @@ type App () as app =
 
     // Uncomment this code to save the application state to app.Properties using Newtonsoft.Json
     // See https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/models.html#saving-application-state for further  instructions.
-#if APPSAVE
     let modelId = "model"
     override __.OnSleep() = 
+        AppCenter.Start("android=08e8d768-d96d-43ad-b0dc-6d76ad907a19;",
+          typeof<Analytics>, typeof<Crashes>);
 
         let json = Newtonsoft.Json.JsonConvert.SerializeObject(runner.CurrentModel)
         Console.WriteLine("OnSleep: saving model into app.Properties, json = {0}", json)
@@ -147,6 +153,5 @@ type App () as app =
     override this.OnStart() = 
         Console.WriteLine "OnStart: using same logic as OnResume()"
         this.OnResume()
-#endif
 
 
