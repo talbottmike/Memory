@@ -41,14 +41,15 @@ module App =
   
     let getTextParts (t : string) = 
       Analytics.TrackEvent("Getting text parts")
-      Regex.Split(t, @"(\b[^\s]+\b)")
-      |> Seq.mapi identifyTextType
-      |> Seq.pairwise
-      |> Seq.collect (fun (x,y) -> 
-        [ (if x.Text = " " then { y with HasSpaceBefore = true; } else y) ]
-      )
-      |> Seq.filter (fun x -> x.Text.Trim() <> "")
-      |> Seq.toList 
+      //Regex.Split(t, @"(\b[^\s]+\b)")
+      //|> Seq.mapi identifyTextType
+      //|> Seq.pairwise
+      //|> Seq.collect (fun (x,y) -> 
+      //  [ (if x.Text = " " then { y with HasSpaceBefore = true; } else y) ]
+      //)
+      //|> Seq.filter (fun x -> x.Text.Trim() <> "")
+      //|> Seq.toList
+      [ { Id = 1; Text = "Test"; TextView = FullText; TextType = TextType.Word; HasSpaceBefore = false; } ]
       |> (fun x -> Analytics.TrackEvent(sprintf "Found %i text parts" x.Length); x)
   
     let init () : Model * Cmd<Msg> =
