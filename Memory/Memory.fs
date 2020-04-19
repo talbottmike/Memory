@@ -7,9 +7,11 @@ open Fabulous.XamarinForms.LiveUpdate
 open Xamarin.Forms
 open System.Text.RegularExpressions
 open System
+open Microsoft.AppCenter
+open Microsoft.AppCenter.Analytics
+open Microsoft.AppCenter.Crashes
 
 module App = 
-    type AppState = Editing | Memorizing
     type TextType = | Word | Punctuation | Number
     type TextView = | FullText | FirstLetter | NoText 
     type TextPart = { Id : int; Text : string; TextType : TextType; TextView : TextView; HasSpaceBefore : bool; }
@@ -20,10 +22,12 @@ module App =
     type Msg =
       | AddEntry
       | UpdateEntry of Guid
+      | SelectEntry of Guid
       | AddOrUpdateEntry
       | UpdateText of string
       | UpdateTitle of string
       | ToggleTextView of int
+      | ViewList
   
     let (|FirstRegexGroup|_|) pattern input =
        let m = Regex.Match(input,pattern) 
@@ -36,6 +40,7 @@ module App =
       | _ -> { Id = id; Text = s; TextType = TextType.Word; TextView = FullText; HasSpaceBefore = false; }
   
     let getTextParts (t : string) = 
+      Analytics.TrackEvent("Getting text parts")
       Regex.Split(t, @"(\b[^\s]+\b)")
       |> Seq.mapi identifyTextType
       |> Seq.pairwise
@@ -44,6 +49,7 @@ module App =
       )
       |> Seq.filter (fun x -> x.Text.Trim() <> "")
       |> Seq.toList 
+      |> (fun x -> Analytics.TrackEvent(sprintf "Found %i text parts" x.Length); x)
   
     let init () : Model * Cmd<Msg> =
       let model = { Editor = Some { Title = ""; Text = ""; EntryId = None; }; Entries = []; CurrentEntry = None; }
@@ -51,6 +57,8 @@ module App =
         
     let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
       match msg with
+      | SelectEntry guid ->
+        { model with CurrentEntry = Some guid; }, Cmd.none
       | UpdateText t ->
         let newEditor =
           model.Editor
@@ -103,6 +111,8 @@ module App =
           |> List.tryFind (fun x -> x.Id = guid)
           |> Option.map (fun x -> { EntryId = Some x.Id; Text = x.Text; Title = x.Title; })
         { model with Editor = editor; }, Cmd.none
+      | ViewList ->
+        { model with Editor = None; CurrentEntry = None; }, Cmd.none
     
     let viewTextPart (x : TextPart) dispatch =
       let t =
@@ -150,13 +160,27 @@ module App =
                       for x in e.TextParts do
                         viewTextPart x dispatch ]))
               View.Button(text = "Edit", command = (fun () -> dispatch (UpdateEntry e.Id)))
-              View.Button(text = "Add new", command = (fun () -> dispatch AddEntry))]))
+              View.Button(text = "Home", command = (fun () -> dispatch ViewList))]))
       | None, None ->
-        View.ContentPage(
-          View.StackLayout(
-            [ View.Label(text = "Add entry to memorize")
-              View.Button(text = "Start", command = (fun () -> dispatch AddEntry))]
-          ))
+        match model.Entries with
+        | [] ->
+          View.ContentPage(
+            View.StackLayout(
+              [ View.Label(text = "Add entry to memorize")
+                View.Button(text = "Start", command = (fun () -> dispatch AddEntry))]
+            ))
+        | _ ->
+          View.ContentPage(
+            View.StackLayout(
+              [ View.Label(text = "Existing entries")
+                for x in model.Entries do
+                  let t = (x.Text |> Seq.truncate 100 |> String.Concat)
+                  View.Label(text = x.Title)
+                  View.Label(text = t)
+                  View.Label(text = sprintf "Length: %i" x.TextParts.Length)
+                  View.Button(text = "View", command = (fun () -> dispatch (SelectEntry x.Id)))
+                View.Button(text = "Add New", command = (fun () -> dispatch AddEntry))]
+            ))
 
     // Note, this declaration is needed if you enable LiveUpdate
     let program = Program.mkProgram init update view
@@ -191,7 +215,6 @@ type App () as app =
 
         let json = Newtonsoft.Json.JsonConvert.SerializeObject(runner.CurrentModel)
         Console.WriteLine("OnSleep: saving model into app.Properties, json = {0}", json)
-
         app.Properties.[modelId] <- json
 
     override __.OnResume() = 
@@ -208,7 +231,8 @@ type App () as app =
 
             | _ -> ()
         with ex -> 
-            App.program.onError("Error while restoring model found in app.Properties", ex)
+          Crashes.TrackError(ex,dict [],[||])
+          App.program.onError("Error while restoring model found in app.Properties", ex)
 
     override this.OnStart() = 
         Console.WriteLine "OnStart: using same logic as OnResume()"
