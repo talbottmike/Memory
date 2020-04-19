@@ -6,17 +6,23 @@ open Fabulous.XamarinForms
 open Fabulous.XamarinForms.LiveUpdate
 open Xamarin.Forms
 open System.Text.RegularExpressions
+open System
 
 module App = 
-    let memoryTitle = "Lorem ipsum"
-    let memoryText = "Lorem ipsum dolor sit amet, aeterno commune scripserit vel ut, ne inani ullamcorper mea, usu in aperiri insolens neglegentur. Essent fierent deseruisse at pro, at sit magna tritani. Ex offendit neglegentur eos, an tota assum nonumy eam. Etiam delicatissimi usu id. Per cu adhuc iuvaret, nec ad etiam vocibus appetere, nec ne recusabo mediocrem."
+    type AppState = Editing | Memorizing
     type TextType = | Word | Punctuation | Number
     type TextView = | FullText | FirstLetter | NoText 
     type TextPart = { Id : int; Text : string; TextType : TextType; TextView : TextView; HasSpaceBefore : bool; }
-    type Model = { Title : string; Text : string; TextParts : TextPart list } 
+    type MemorizationEntry = { Id : Guid; Title : string; Text : string; TextParts : TextPart list; }
+    type EditorValues = { EntryId : Guid option; Title : string; Text : string; }
+    type Model = { Entries : MemorizationEntry list; Editor : EditorValues option; CurrentEntry : Guid option } 
 
     type Msg =
-      | SetText of string
+      | AddEntry
+      | UpdateEntry of Guid
+      | AddOrUpdateEntry
+      | UpdateText of string
+      | UpdateTitle of string
       | ToggleTextView of int
   
     let (|FirstRegexGroup|_|) pattern input =
@@ -34,33 +40,69 @@ module App =
       |> Seq.mapi identifyTextType
       |> Seq.pairwise
       |> Seq.collect (fun (x,y) -> 
-        //[ if x.Id = 1 then yield x else ()
-        //  if x.Text = " " then yield { y with HasSpaceBefore = true; } else yield y ]
         [ (if x.Text = " " then { y with HasSpaceBefore = true; } else y) ]
       )
       |> Seq.filter (fun x -> x.Text.Trim() <> "")
       |> Seq.toList 
   
     let init () : Model * Cmd<Msg> =
-      let textParts = getTextParts memoryText
-      let model = { Title = memoryTitle; Text = memoryText; TextParts = textParts; }
+      let model = { Editor = Some { Title = ""; Text = ""; EntryId = None; }; Entries = []; CurrentEntry = None; }
       model, Cmd.none        
         
     let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
       match msg with
-      | SetText t ->
-        let tp = getTextParts t
-        { model with Text = t; TextParts = tp; }, Cmd.none
+      | UpdateText t ->
+        let newEditor =
+          model.Editor
+          |> Option.map (fun e -> { e with Text = t })
+        { model with Editor = newEditor; }, Cmd.none
+      | UpdateTitle t ->
+        let newEditor =
+          model.Editor
+          |> Option.map (fun e -> { e with Title = t })
+        { model with Editor = newEditor; }, Cmd.none
+      | AddOrUpdateEntry ->
+        let newModel =
+          match model.Editor with
+          | None -> 
+            model
+          | Some e -> 
+            let newCurrentEntry, newEntries =
+              match e.EntryId with
+              | None -> 
+                let id = Guid.NewGuid()
+                let entries = { Id = id; Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; } :: model.Entries
+                (id, entries)
+              | Some guid -> 
+                let entries = model.Entries |> List.map (fun x -> if guid = x.Id then { x with Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; } else x)
+                (guid, entries)
+            { model with Editor = None; Entries = newEntries; CurrentEntry = Some newCurrentEntry }
+        newModel, Cmd.none
       | ToggleTextView id ->
-        let toggle x =
-          let newTextView =
-            match x.TextView with
-            | TextView.FullText -> TextView.NoText
-            | TextView.NoText -> TextView.FirstLetter
-            | TextView.FirstLetter -> TextView.FullText
-          { x with TextView = newTextView }
-        let tp = model.TextParts |> List.map (fun x -> if x.Id = id then toggle x else x)
-        { model with TextParts = tp; }, Cmd.none
+        let newModel =
+          match model.CurrentEntry with
+          | None -> model
+          | Some guid ->
+            let toggle x =
+              let newTextView =
+                match x.TextView with
+                | TextView.FullText -> TextView.NoText
+                | TextView.NoText -> TextView.FirstLetter
+                | TextView.FirstLetter -> TextView.FullText
+              { x with TextView = newTextView }
+            let newEntries =
+              let newTextParts (textParts : TextPart list) = textParts |> List.map (fun x -> if x.Id = id then toggle x else x)
+              model.Entries |> List.map (fun x -> if guid = x.Id then { x with TextParts = newTextParts x.TextParts; } else x)
+            { model with Entries = newEntries }
+        newModel, Cmd.none
+      | AddEntry ->
+        { model with Editor = Some { EntryId = None; Text = ""; Title = ""; }}, Cmd.none
+      | UpdateEntry guid ->
+        let editor = 
+          model.Entries 
+          |> List.tryFind (fun x -> x.Id = guid)
+          |> Option.map (fun x -> { EntryId = Some x.Id; Text = x.Text; Title = x.Title; })
+        { model with Editor = editor; }, Cmd.none
     
     let viewTextPart (x : TextPart) dispatch =
       let t =
@@ -84,19 +126,37 @@ module App =
       )
 
     let view (model: Model) dispatch =
+      let currentEntry = model.CurrentEntry |> Option.bind (fun guid -> model.Entries |> List.tryFind (fun x -> x.Id = guid))
+      match model.Editor, currentEntry with
+      | Some e,_ ->
+        View.ContentPage(
+          View.StackLayout(
+            [ View.Label(text = "Title")
+              View.Entry(text = e.Title, textChanged = fun textArgs -> UpdateTitle textArgs.NewTextValue |> dispatch)
+              View.Label(text = "Text to memorize")
+              View.Entry(text = e.Text, textChanged = fun textArgs -> UpdateText textArgs.NewTextValue |> dispatch)
+              View.Button(text = (if e.EntryId.IsSome then "Update" else "Ok"), command = (fun () -> dispatch AddOrUpdateEntry))]
+          ))
+      | None, Some e ->
         View.ContentPage(
           View.StackLayout(
             children = [
-              View.Label(text = sprintf "%s" model.Title, horizontalOptions = LayoutOptions.Center, horizontalTextAlignment=TextAlignment.Center)
+              View.Label(text = e.Title, horizontalOptions = LayoutOptions.Center, horizontalTextAlignment=TextAlignment.Center)
               View.ScrollView(
                 View.FlexLayout(
                   direction = FlexDirection.Row,
                   wrap = FlexWrap.Wrap,
                   children = [ 
-                      for x in model.TextParts do
+                      for x in e.TextParts do
                         viewTextPart x dispatch ]))
-                  
-              ]))
+              View.Button(text = "Edit", command = (fun () -> dispatch (UpdateEntry e.Id)))
+              View.Button(text = "Add new", command = (fun () -> dispatch AddEntry))]))
+      | None, None ->
+        View.ContentPage(
+          View.StackLayout(
+            [ View.Label(text = "Add entry to memorize")
+              View.Button(text = "Start", command = (fun () -> dispatch AddEntry))]
+          ))
 
     // Note, this declaration is needed if you enable LiveUpdate
     let program = Program.mkProgram init update view
