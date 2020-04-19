@@ -159,7 +159,7 @@ module App =
                   wrap = FlexWrap.Wrap,
                   children = [ 
                       for x in e.TextParts do
-                        viewTextPart x dispatch ]))
+                        yield viewTextPart x dispatch ]))
               View.Button(text = "Edit", command = (fun () -> dispatch (UpdateEntry e.Id)))
               View.Button(text = "Home", command = (fun () -> dispatch ViewList))]))
       | None, None ->
@@ -173,14 +173,14 @@ module App =
         | _ ->
           View.ContentPage(
             View.StackLayout(
-              [ View.Label(text = "Existing entries")
+              [ yield View.Label(text = "Existing entries")
                 for x in model.Entries do
                   let t = (x.Text |> Seq.truncate 100 |> String.Concat)
-                  View.Label(text = x.Title)
-                  View.Label(text = t)
-                  View.Label(text = sprintf "Length: %i" x.TextParts.Length)
-                  View.Button(text = "View", command = (fun () -> dispatch (SelectEntry x.Id)))
-                View.Button(text = "Add New", command = (fun () -> dispatch AddEntry))]
+                  yield View.Label(text = x.Title)
+                  yield View.Label(text = t)
+                  yield View.Label(text = sprintf "Length: %i" x.TextParts.Length)
+                  yield View.Button(text = "View", command = (fun () -> dispatch (SelectEntry x.Id)))
+                yield View.Button(text = "Add New", command = (fun () -> dispatch AddEntry))]
             ))
 
     // Note, this declaration is needed if you enable LiveUpdate
