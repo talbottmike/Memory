@@ -22,6 +22,7 @@ module App =
     type Msg =
       | AddEntry
       | UpdateEntry of Guid
+      | RemoveEntry of Guid
       | SelectEntry of Guid
       | AddOrUpdateEntry
       | UpdateText of string
@@ -41,15 +42,14 @@ module App =
   
     let getTextParts (t : string) = 
       Analytics.TrackEvent("Getting text parts")
-      //Regex.Split(t, @"(\b[^\s]+\b)")
-      //|> Seq.mapi identifyTextType
-      //|> Seq.pairwise
-      //|> Seq.collect (fun (x,y) -> 
-      //  [ (if x.Text = " " then { y with HasSpaceBefore = true; } else y) ]
-      //)
-      //|> Seq.filter (fun x -> x.Text.Trim() <> "")
-      //|> Seq.toList
-      [ { Id = 1; Text = "Test"; TextView = FullText; TextType = TextType.Word; HasSpaceBefore = false; } ]
+      Regex.Split(t, @"(\b[^\s]+\b)")
+      |> Seq.mapi identifyTextType
+      |> Seq.pairwise
+      |> Seq.collect (fun (x,y) -> 
+        [ (if x.Text = " " then { y with HasSpaceBefore = true; } else y) ]
+      )
+      |> Seq.filter (fun x -> x.Text.Trim() <> "")
+      |> Seq.toList
       |> (fun x -> Analytics.TrackEvent(sprintf "Found %i text parts" x.Length); x)
   
     let init () : Model * Cmd<Msg> =
@@ -70,6 +70,11 @@ module App =
           model.Editor
           |> Option.map (fun e -> { e with Title = t })
         { model with Editor = newEditor; }, Cmd.none
+      | RemoveEntry guid ->
+        let newModel =
+          let newEntries = model.Entries |> List.filter (fun x -> guid <> x.Id)
+          { model with Editor = None; Entries = newEntries; CurrentEntry = None; }
+        newModel, Cmd.none
       | AddOrUpdateEntry ->
         let newModel =
           match model.Editor with
@@ -142,11 +147,14 @@ module App =
       | Some e,_ ->
         View.ContentPage(
           View.StackLayout(
-            [ View.Label(text = "Title")
-              View.Entry(text = e.Title, textChanged = fun textArgs -> UpdateTitle textArgs.NewTextValue |> dispatch)
-              View.Label(text = "Text to memorize")
-              View.Entry(text = e.Text, textChanged = fun textArgs -> UpdateText textArgs.NewTextValue |> dispatch)
-              View.Button(text = (if e.EntryId.IsSome then "Update" else "Ok"), command = (fun () -> dispatch AddOrUpdateEntry))]
+            [ yield View.Label(text = "Title")
+              yield View.Entry(text = e.Title, textChanged = fun textArgs -> UpdateTitle textArgs.NewTextValue |> dispatch)
+              yield View.Label(text = "Text to memorize")
+              yield View.Editor(text = e.Text, textChanged = fun textArgs -> UpdateText textArgs.NewTextValue |> dispatch)
+              yield View.Button(text = (if e.EntryId.IsSome then "Update" else "Ok"), command = (fun () -> dispatch AddOrUpdateEntry))
+              match e.EntryId with
+              | None -> ()
+              | Some id -> yield View.Button(text = "Remove", command = (fun () -> dispatch (RemoveEntry id)))]
           ))
       | None, Some e ->
         View.ContentPage(
