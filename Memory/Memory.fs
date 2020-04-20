@@ -150,7 +150,11 @@ module App =
             [ yield View.Label(text = "Title")
               yield View.Entry(text = e.Title, textChanged = fun textArgs -> UpdateTitle textArgs.NewTextValue |> dispatch)
               yield View.Label(text = "Text to memorize")
-              yield View.Editor(text = e.Text, textChanged = fun textArgs -> UpdateText textArgs.NewTextValue |> dispatch)
+              yield View.Editor(
+                text = e.Text, 
+                textChanged = (fun (textArgs : TextChangedEventArgs) -> UpdateText textArgs.NewTextValue |> dispatch),
+                placeholder = "Enter text to memorize here",
+                height = 10.0).AutoSize(EditorAutoSizeOption.TextChanges)
               yield View.Button(text = (if e.EntryId.IsSome then "Update" else "Ok"), command = (fun () -> dispatch AddOrUpdateEntry))
               match e.EntryId with
               | None -> ()
