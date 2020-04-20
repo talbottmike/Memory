@@ -148,7 +148,11 @@ module App =
         View.ContentPage(
           View.StackLayout(
             [ yield View.Label(text = "Title")
-              yield View.Entry(text = e.Title, textChanged = fun textArgs -> UpdateTitle textArgs.NewTextValue |> dispatch)
+              yield View.Entry(
+                text = e.Title, 
+                textChanged = (fun (textArgs : TextChangedEventArgs) -> UpdateTitle textArgs.NewTextValue |> dispatch),
+                placeholder = "Enter title"
+                )
               yield View.Label(text = "Text to memorize")
               yield View.Editor(
                 text = e.Text, 
@@ -191,7 +195,7 @@ module App =
                   yield View.Label(text = x.Title)
                   yield View.Label(text = t)
                   yield View.Label(text = sprintf "Length: %i" x.TextParts.Length)
-                  yield View.Button(text = "View", command = (fun () -> dispatch (SelectEntry x.Id)))
+                  yield View.Button(text = "&#xf844;", fontFamily = "{StaticResource IconFont}", command = (fun () -> dispatch (SelectEntry x.Id)))
                 yield View.Button(text = "Add New", command = (fun () -> dispatch AddEntry))]
             ))
 
@@ -222,10 +226,11 @@ type App () as app =
     // Uncomment this code to save the application state to app.Properties using Newtonsoft.Json
     // See https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/models.html#saving-application-state for further  instructions.
     let modelId = "model"
+
     override __.OnSleep() = 
         AppCenter.Start("android=08e8d768-d96d-43ad-b0dc-6d76ad907a19;",
           typeof<Analytics>, typeof<Crashes>);
-
+        
         let json = Newtonsoft.Json.JsonConvert.SerializeObject(runner.CurrentModel)
         Console.WriteLine("OnSleep: saving model into app.Properties, json = {0}", json)
         app.Properties.[modelId] <- json
@@ -249,6 +254,5 @@ type App () as app =
 
     override this.OnStart() = 
         Console.WriteLine "OnStart: using same logic as OnResume()"
+        this.Resources.Add("IconFont","materialdesignicons-webfont.ttf#Material Design Icons")
         this.OnResume()
-
-

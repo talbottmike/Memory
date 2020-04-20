@@ -120,6 +120,7 @@
     <Compile Include="Properties\AssemblyInfo.fs" />
     <Compile Include="MainActivity.fs" />
     <None Include="Assets\AboutAssets.txt" />
+    <AndroidAsset Include="Assets\materialdesignicons-webfont.ttf" />
     <None Include="Resources\AboutResources.txt" />
     <AndroidResource Include="Resources\layout\Tabbar.axml" />
     <AndroidResource Include="Resources\layout\Toolbar.axml" />
