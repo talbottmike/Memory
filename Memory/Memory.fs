@@ -29,7 +29,13 @@ module App =
       | UpdateTitle of string
       | ToggleTextView of int
       | ViewList
-  
+    
+    let materialFont =
+      match Device.RuntimePlatform with
+      | Device.iOS -> "Material Design Icons"
+      | Device.Android -> "materialdesignicons-webfont.ttf#Material Design Icons"
+      | _ -> null
+
     let (|FirstRegexGroup|_|) pattern input =
        let m = Regex.Match(input,pattern) 
        if (m.Success) then Some m.Groups.[1].Value else None  
@@ -143,29 +149,38 @@ module App =
 
     let view (model: Model) dispatch =
       let currentEntry = model.CurrentEntry |> Option.bind (fun guid -> model.Entries |> List.tryFind (fun x -> x.Id = guid))
-      match model.Editor, currentEntry with
-      | Some e,_ ->
-        View.ContentPage(
+      let content =
+        match model.Editor, currentEntry with
+        | Some e,_ ->
           View.StackLayout(
-            [ yield View.Label(text = "Title")
-              yield View.Entry(
+            [ yield View.Entry(
                 text = e.Title, 
                 textChanged = (fun (textArgs : TextChangedEventArgs) -> UpdateTitle textArgs.NewTextValue |> dispatch),
                 placeholder = "Enter title"
                 )
-              yield View.Label(text = "Text to memorize")
               yield View.Editor(
                 text = e.Text, 
                 textChanged = (fun (textArgs : TextChangedEventArgs) -> UpdateText textArgs.NewTextValue |> dispatch),
-                placeholder = "Enter text to memorize here",
-                height = 10.0).AutoSize(EditorAutoSizeOption.TextChanges)
-              yield View.Button(text = (if e.EntryId.IsSome then "Update" else "Ok"), command = (fun () -> dispatch AddOrUpdateEntry))
+                placeholder = "Paste or enter text to memorize here",
+                autoSize = EditorAutoSizeOption.TextChanges
+              )
+              yield View.Button(
+                text = IconFont.ContentSave,
+                fontFamily = materialFont, 
+                fontSize = FontSize 20.,
+                horizontalOptions = LayoutOptions.End,
+                command = (fun () -> dispatch AddOrUpdateEntry))
               match e.EntryId with
               | None -> ()
-              | Some id -> yield View.Button(text = "Remove", command = (fun () -> dispatch (RemoveEntry id)))]
-          ))
-      | None, Some e ->
-        View.ContentPage(
+              | Some id -> 
+                yield View.Button(
+                  text = "Delete " + IconFont.Delete,
+                  fontFamily = materialFont, 
+                  fontSize = FontSize 20.,
+                  horizontalOptions = LayoutOptions.End,
+                  command = (fun () -> dispatch (RemoveEntry id)))]
+          )
+        | None, Some e ->
           View.StackLayout(
             children = [
               View.Label(text = e.Title, horizontalOptions = LayoutOptions.Center, horizontalTextAlignment=TextAlignment.Center)
@@ -176,28 +191,53 @@ module App =
                   children = [ 
                       for x in e.TextParts do
                         yield viewTextPart x dispatch ]))
-              View.Button(text = "Edit", command = (fun () -> dispatch (UpdateEntry e.Id)))
-              View.Button(text = "Home", command = (fun () -> dispatch ViewList))]))
-      | None, None ->
-        match model.Entries with
-        | [] ->
-          View.ContentPage(
+              View.Button(
+                text = IconFont.Pencil,
+                fontFamily = materialFont, 
+                fontSize = FontSize 20.,
+                horizontalOptions = LayoutOptions.End,
+                command = (fun () -> dispatch (UpdateEntry e.Id)))
+              View.Button(
+                text = IconFont.Home,
+                fontFamily = materialFont, 
+                fontSize = FontSize 20.,
+                horizontalOptions = LayoutOptions.End,
+                command = (fun () -> dispatch ViewList))])
+        | None, None ->
+          match model.Entries with
+          | [] ->
             View.StackLayout(
               [ View.Label(text = "Add entry to memorize")
-                View.Button(text = "Start", command = (fun () -> dispatch AddEntry))]
-            ))
-        | _ ->
-          View.ContentPage(
+                View.Button(
+                  text = "Start",
+                  horizontalOptions = LayoutOptions.Center,
+                  command = (fun () -> dispatch AddEntry))]
+            )
+          | _ ->
             View.StackLayout(
-              [ yield View.Label(text = "Existing entries")
+              [ yield View.Label(text = "Existing entries", fontSize = FontSize.Named NamedSize.Large)
                 for x in model.Entries do
-                  let t = (x.Text |> Seq.truncate 100 |> String.Concat)
-                  yield View.Label(text = x.Title)
-                  yield View.Label(text = t)
-                  yield View.Label(text = sprintf "Length: %i" x.TextParts.Length)
-                  yield View.Button(text = "&#xf844;", fontFamily = "{StaticResource IconFont}", command = (fun () -> dispatch (SelectEntry x.Id)))
-                yield View.Button(text = "Add New", command = (fun () -> dispatch AddEntry))]
-            ))
+                  yield View.Button(
+                    text = IconFont.Eye,
+                    fontFamily = materialFont, 
+                    fontSize = FontSize 20.,
+                    horizontalOptions = LayoutOptions.Start,
+                    command = (fun () -> dispatch (SelectEntry x.Id)))
+                  yield View.Label(
+                    text = x.Title,
+                    horizontalOptions = LayoutOptions.Start,
+                    fontSize = FontSize.Named NamedSize.Medium)
+                yield View.Button(
+                  text = IconFont.PlusBox,
+                  fontFamily = materialFont, 
+                  fontSize = FontSize 20.,
+                  horizontalOptions = LayoutOptions.Start,
+                  command = (fun () -> dispatch AddEntry))]
+            )
+
+      View.ContentPage(
+        visual = VisualMarker.Material,
+        content = content)
 
     // Note, this declaration is needed if you enable LiveUpdate
     let program = Program.mkProgram init update view
@@ -254,5 +294,4 @@ type App () as app =
 
     override this.OnStart() = 
         Console.WriteLine "OnStart: using same logic as OnResume()"
-        this.Resources.Add("IconFont","materialdesignicons-webfont.ttf#Material Design Icons")
         this.OnResume()

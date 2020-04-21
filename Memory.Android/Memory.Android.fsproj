@@ -114,12 +114,14 @@
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.v7.AppCompat.28.0.0.3\build\MonoAndroid90\Xamarin.Android.Support.v7.AppCompat.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.v7.AppCompat.28.0.0.3\build\MonoAndroid81\Xamarin.Android.Support.v7.AppCompat.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.Design.28.0.0.3\build\MonoAndroid90\Xamarin.Android.Support.Design.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.Design.28.0.0.3\build\MonoAndroid81\Xamarin.Android.Support.Design.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.v7.MediaRouter.28.0.0.3\build\MonoAndroid90\Xamarin.Android.Support.v7.MediaRouter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.v7.MediaRouter.28.0.0.3\build\MonoAndroid81\Xamarin.Android.Support.v7.MediaRouter.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Android.Arch.Lifecycle.LiveData.1.1.1.3\build\monoandroid90\Xamarin.Android.Arch.Lifecycle.LiveData.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Arch.Lifecycle.LiveData.1.1.1.3\build\monoandroid90\Xamarin.Android.Arch.Lifecycle.LiveData.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Forms.Visual.Material.4.5.0.617\build\MonoAndroid10\Xamarin.Forms.Visual.Material.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Forms.Visual.Material.4.5.0.617\build\MonoAndroid10\Xamarin.Forms.Visual.Material.targets'))" />
   </Target>
   <ItemGroup>
     <None Include="Properties\AndroidManifest.xml" />
     <Compile Include="Properties\AssemblyInfo.fs" />
     <Compile Include="MainActivity.fs" />
-    <None Include="Assets\AboutAssets.txt" />
+    <AndroidAsset Include="Assets\AboutAssets.txt" />
     <AndroidAsset Include="Assets\materialdesignicons-webfont.ttf" />
     <None Include="Resources\AboutResources.txt" />
     <AndroidResource Include="Resources\layout\Tabbar.axml" />
@@ -141,6 +143,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Java.Interop" />
     <Reference Include="Microsoft.AppCenter">
       <HintPath>..\packages\Microsoft.AppCenter.3.1.0\lib\MonoAndroid403\Microsoft.AppCenter.dll</HintPath>
     </Reference>
@@ -167,6 +170,9 @@
     <Reference Include="System.Numerics.Vectors" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
+    <Reference Include="Xamarin.Android.Arch.Lifecycle.LiveData">
+      <HintPath>..\packages\Xamarin.Android.Arch.Lifecycle.LiveData.1.1.1.3\lib\monoandroid90\Xamarin.Android.Arch.Lifecycle.LiveData.dll</HintPath>
+    </Reference>
     <Reference Include="Xamarin.Android.FSharp.ResourceProvider.Runtime">
       <HintPath>..\packages\Xamarin.Android.FSharp.ResourceProvider.1.0.0.28\lib\monoandroid81\Xamarin.Android.FSharp.ResourceProvider.Runtime.dll</HintPath>
     </Reference>
@@ -287,6 +293,9 @@
     <Reference Include="Xamarin.Forms.Core">
       <HintPath>..\packages\Xamarin.Forms.4.5.0.617\lib\MonoAndroid90\Xamarin.Forms.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Xamarin.Forms.Material">
+      <HintPath>..\packages\Xamarin.Forms.Visual.Material.4.5.0.617\lib\MonoAndroid90\Xamarin.Forms.Material.dll</HintPath>
+    </Reference>
     <Reference Include="Xamarin.Forms.Platform">
       <HintPath>..\packages\Xamarin.Forms.4.5.0.617\lib\MonoAndroid90\Xamarin.Forms.Platform.dll</HintPath>
     </Reference>
@@ -325,4 +334,6 @@
       <Name>Memory</Name>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="..\packages\Xamarin.Android.Arch.Lifecycle.LiveData.1.1.1.3\build\monoandroid90\Xamarin.Android.Arch.Lifecycle.LiveData.targets" Condition="Exists('..\packages\Xamarin.Android.Arch.Lifecycle.LiveData.1.1.1.3\build\monoandroid90\Xamarin.Android.Arch.Lifecycle.LiveData.targets')" />
+  <Import Project="..\packages\Xamarin.Forms.Visual.Material.4.5.0.617\build\MonoAndroid10\Xamarin.Forms.Visual.Material.targets" Condition="Exists('..\packages\Xamarin.Forms.Visual.Material.4.5.0.617\build\MonoAndroid10\Xamarin.Forms.Visual.Material.targets')" />
 </Project>

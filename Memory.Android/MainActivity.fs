@@ -23,6 +23,7 @@ type MainActivity() =
         Xamarin.Essentials.Platform.Init(this, bundle)
 
         Xamarin.Forms.Forms.Init (this, bundle)
+        Xamarin.Forms.FormsMaterial.Init(this, bundle)
 
         let appcore  = new Memory.App()
         this.LoadApplication (appcore)
