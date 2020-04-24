@@ -58,6 +58,7 @@ module App =
       |> Seq.toList
       |> (fun x -> Analytics.TrackEvent(sprintf "Found %i text parts" x.Length); x)
   
+    let strOption (s : string) = if String.IsNullOrWhiteSpace s then None else Some s
     let init () : Model * Cmd<Msg> =
       let model = { Editor = Some { Title = ""; Text = ""; EntryId = None; }; Entries = []; CurrentEntry = None; }
       model, Cmd.none        
@@ -90,13 +91,21 @@ module App =
             let newCurrentEntry, newEntries =
               match e.EntryId with
               | None -> 
-                let id = Guid.NewGuid()
-                let entries = { Id = id; Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; } :: model.Entries
-                (id, entries)
+                match strOption e.Title, strOption e.Text with
+                | None, None -> None, model.Entries 
+                | _, _ -> 
+                  let id = Guid.NewGuid()
+                  let entries = { Id = id; Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; } :: model.Entries
+                  (Some id, entries)
               | Some guid -> 
-                let entries = model.Entries |> List.map (fun x -> if guid = x.Id then { x with Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; } else x)
-                (guid, entries)
-            { model with Editor = None; Entries = newEntries; CurrentEntry = Some newCurrentEntry }
+                match strOption e.Title, strOption e.Text with
+                | None, None -> 
+                  let entries = model.Entries |> List.filter (fun x -> guid <> x.Id)
+                  (None, entries)
+                | _, _ -> 
+                  let entries = model.Entries |> List.map (fun x -> if guid = x.Id then { x with Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; } else x)
+                  (Some guid, entries)
+            { model with Editor = None; Entries = newEntries; CurrentEntry = newCurrentEntry }
         newModel, Cmd.none
       | ToggleTextView id ->
         let newModel =
@@ -153,7 +162,14 @@ module App =
         match model.Editor, currentEntry with
         | Some e,_ ->
           View.StackLayout(
-            [ yield View.Entry(
+            [ 
+              yield View.Label(
+                text = IconFont.ArrowLeft,
+                fontFamily = materialFont, 
+                fontSize = FontSize 40.,
+                horizontalOptions = LayoutOptions.Start,
+                gestureRecognizers = [ View.TapGestureRecognizer(command=(fun () -> dispatch AddOrUpdateEntry)) ])
+              yield View.Entry(
                 text = e.Title, 
                 textChanged = (fun (textArgs : TextChangedEventArgs) -> UpdateTitle textArgs.NewTextValue |> dispatch),
                 placeholder = "Enter title"
@@ -164,17 +180,11 @@ module App =
                 placeholder = "Paste or enter text to memorize here",
                 autoSize = EditorAutoSizeOption.TextChanges
               )
-              yield View.Button(
-                text = IconFont.ContentSave,
-                fontFamily = materialFont, 
-                fontSize = FontSize 20.,
-                horizontalOptions = LayoutOptions.End,
-                command = (fun () -> dispatch AddOrUpdateEntry))
               match e.EntryId with
               | None -> ()
               | Some id -> 
                 yield View.Button(
-                  text = "Delete " + IconFont.Delete,
+                  text = IconFont.BookMinus + " Delete",
                   fontFamily = materialFont, 
                   fontSize = FontSize 20.,
                   horizontalOptions = LayoutOptions.End,
@@ -183,7 +193,13 @@ module App =
         | None, Some e ->
           View.StackLayout(
             children = [
-              View.Label(text = e.Title, horizontalOptions = LayoutOptions.Center, horizontalTextAlignment=TextAlignment.Center)
+              View.Label(
+                text = IconFont.ArrowLeft,
+                fontFamily = materialFont, 
+                fontSize = FontSize 40.,
+                horizontalOptions = LayoutOptions.Start,
+                gestureRecognizers = [ View.TapGestureRecognizer(command=(fun () -> dispatch ViewList)) ])
+              View.Label(text = e.Title, horizontalOptions = LayoutOptions.Start, horizontalTextAlignment=TextAlignment.Center)
               View.ScrollView(
                 View.FlexLayout(
                   direction = FlexDirection.Row,
@@ -192,51 +208,66 @@ module App =
                       for x in e.TextParts do
                         yield viewTextPart x dispatch ]))
               View.Button(
-                text = IconFont.Pencil,
+                text = IconFont.Pencil + " Edit",
                 fontFamily = materialFont, 
                 fontSize = FontSize 20.,
                 horizontalOptions = LayoutOptions.End,
-                command = (fun () -> dispatch (UpdateEntry e.Id)))
-              View.Button(
-                text = IconFont.Home,
-                fontFamily = materialFont, 
-                fontSize = FontSize 20.,
-                horizontalOptions = LayoutOptions.End,
-                command = (fun () -> dispatch ViewList))])
+                command = (fun () -> dispatch (UpdateEntry e.Id)))])
         | None, None ->
           match model.Entries with
           | [] ->
             View.StackLayout(
-              [ View.Label(text = "Add entry to memorize")
-                View.Button(
-                  text = "Start",
-                  horizontalOptions = LayoutOptions.Center,
-                  command = (fun () -> dispatch AddEntry))]
+              verticalOptions = LayoutOptions.Center,
+              children =
+                [ View.Image()
+                  View.Label(
+                    text = "Tap the blue button to",
+                    horizontalOptions = LayoutOptions.Center,
+                    fontSize = FontSize.Named NamedSize.Large)
+                  View.Label(
+                    text = "create your first entry",
+                    horizontalOptions = LayoutOptions.Center,
+                    fontSize = FontSize.Named NamedSize.Large)
+                  View.Button(
+                    text = IconFont.BookPlus,
+                    fontFamily = materialFont, 
+                    fontSize = FontSize 60.,
+                    fontAttributes = FontAttributes.Bold,
+                    textColor = Color.RoyalBlue,
+                    backgroundColor = Color.Transparent,
+                    horizontalOptions = LayoutOptions.Center,
+                    borderColor = Color.Transparent,
+                    borderWidth = 0.0,
+                    command = (fun () -> dispatch AddEntry))]
             )
           | _ ->
             View.StackLayout(
-              [ yield View.Label(text = "Existing entries", fontSize = FontSize.Named NamedSize.Large)
+              [ yield View.Label(
+                  text = IconFont.Bookshelf + " Entries",
+                  fontFamily = materialFont, 
+                  fontSize = FontSize 30.)
                 for x in model.Entries do
                   yield View.Button(
-                    text = IconFont.Eye,
+                    text = IconFont.Glasses + " " + x.Title,
                     fontFamily = materialFont, 
-                    fontSize = FontSize 20.,
+                    fontSize = FontSize 18.,
+                    fontAttributes = FontAttributes.Bold,
+                    backgroundColor = Color.Transparent,
                     horizontalOptions = LayoutOptions.Start,
                     command = (fun () -> dispatch (SelectEntry x.Id)))
-                  yield View.Label(
-                    text = x.Title,
-                    horizontalOptions = LayoutOptions.Start,
-                    fontSize = FontSize.Named NamedSize.Medium)
                 yield View.Button(
-                  text = IconFont.PlusBox,
+                  text = IconFont.BookPlus,
                   fontFamily = materialFont, 
-                  fontSize = FontSize 20.,
+                  fontSize = FontSize 40.,
+                  fontAttributes = FontAttributes.Bold,
+                  textColor = Color.RoyalBlue,
+                  backgroundColor = Color.Transparent,
                   horizontalOptions = LayoutOptions.Start,
                   command = (fun () -> dispatch AddEntry))]
             )
 
       View.ContentPage(
-        visual = VisualMarker.Material,
+        //visual = VisualMarker.Material,
         content = content)
 
     // Note, this declaration is needed if you enable LiveUpdate
