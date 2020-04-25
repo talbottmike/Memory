@@ -7,17 +7,17 @@ open Android.App
 
 // the name of the type here needs to match the name inside the ResourceDesigner attribute
 type Resources = Memory.Android.Resource
-[<assembly: Android.Runtime.ResourceDesigner("Memory.Android.Resources", IsApplication=true)>]
+[<assembly: Android.Runtime.ResourceDesigner("memoria.Resources", IsApplication=true)>]
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[<assembly: AssemblyTitle("Memory.Android")>]
+[<assembly: AssemblyTitle("memoria")>]
 [<assembly: AssemblyDescription("")>]
 [<assembly: AssemblyConfiguration("")>]
 [<assembly: AssemblyCompany("")>]
-[<assembly: AssemblyProduct("Memory.Android")>]
-[<assembly: AssemblyCopyright("Copyright ©  2014")>]
+[<assembly: AssemblyProduct("memoria")>]
+[<assembly: AssemblyCopyright("Copyright ©  2020")>]
 [<assembly: AssemblyTrademark("")>]
 [<assembly: AssemblyCulture("")>]
 [<assembly: ComVisible(false)>]

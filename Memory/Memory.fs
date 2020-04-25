@@ -169,11 +169,19 @@ module App =
                 fontSize = FontSize 40.,
                 horizontalOptions = LayoutOptions.Start,
                 gestureRecognizers = [ View.TapGestureRecognizer(command=(fun () -> dispatch AddOrUpdateEntry)) ])
+              yield View.Label(
+                text = "Title",
+                fontSize = FontSize 16.,
+                horizontalOptions = LayoutOptions.Start)
               yield View.Entry(
                 text = e.Title, 
                 textChanged = (fun (textArgs : TextChangedEventArgs) -> UpdateTitle textArgs.NewTextValue |> dispatch),
                 placeholder = "Enter title"
                 )
+              yield View.Label(
+                text = "Memory text",
+                fontSize = FontSize 16.,
+                horizontalOptions = LayoutOptions.Start)
               yield View.Editor(
                 text = e.Text, 
                 textChanged = (fun (textArgs : TextChangedEventArgs) -> UpdateText textArgs.NewTextValue |> dispatch),
