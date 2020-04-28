@@ -1,6 +1,6 @@
 # memoria
 
-![](Feature graphic.png)
+![](Feature_graphic.png)
 
 A mobile app for memorizing text passages.
 
