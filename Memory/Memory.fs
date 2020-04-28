@@ -13,12 +13,12 @@ open Microsoft.AppCenter.Crashes
 
 module App = 
     type TextType = | Word | Punctuation | Number
-    type TextView = | FullText | FirstLetter | NoText 
+    type TextView = | FullText | Letters of int | NoText 
     type TextPart = { Id : int; Text : string; TextType : TextType; TextView : TextView; HasSpaceBefore : bool; }
-    type MemorizationEntry = { Id : Guid; Title : string; Text : string; TextParts : TextPart list; }
+    type MemorizationEntry = { Id : Guid; Title : string; Text : string; TextParts : TextPart list; HintLevel : int option; }
     type EditorValues = { EntryId : Guid option; Title : string; Text : string; }
-    type Model = { Entries : MemorizationEntry list; Editor : EditorValues option; CurrentEntry : Guid option } 
-
+    type Model = { Entries : MemorizationEntry list; Editor : EditorValues option; CurrentEntry : Guid option; } 
+    type TextViewRequest = { Id : int; TextView : TextView; }
     type Msg =
       | AddEntry
       | UpdateEntry of Guid
@@ -27,7 +27,9 @@ module App =
       | AddOrUpdateEntry
       | UpdateText of string
       | UpdateTitle of string
-      | ToggleTextView of int
+      | ToggleTextView of TextViewRequest
+      | BulkToggleTextView of TextView
+      | HintLevelChanged of int
       | ViewList
     
     let materialFont =
@@ -59,6 +61,20 @@ module App =
       |> (fun x -> Analytics.TrackEvent(sprintf "Found %i text parts" x.Length); x)
   
     let strOption (s : string) = if String.IsNullOrWhiteSpace s then None else Some s
+
+    let incrementTextView (x : TextPart) =
+      match x.TextView with
+      | TextView.FullText -> TextView.NoText
+      | TextView.NoText -> TextView.Letters 1
+      | TextView.Letters v -> 
+        if x.Text.Length <= v then TextView.Letters (v + 1) else TextView.FullText
+
+    let toggleTextView (x : TextPart) =
+      match x.TextView with
+      | TextView.FullText -> TextView.NoText
+      | TextView.NoText -> TextView.Letters 1
+      | TextView.Letters _ -> TextView.FullText
+
     let init () : Model * Cmd<Msg> =
       let model = { Editor = Some { Title = ""; Text = ""; EntryId = None; }; Entries = []; CurrentEntry = None; }
       model, Cmd.none        
@@ -82,6 +98,15 @@ module App =
           let newEntries = model.Entries |> List.filter (fun x -> guid <> x.Id)
           { model with Editor = None; Entries = newEntries; CurrentEntry = None; }
         newModel, Cmd.none
+      | HintLevelChanged hintLevel ->
+        let newModel =
+          match model.CurrentEntry with
+          | None -> model
+          | Some guid ->
+            let newEntries =
+              model.Entries |> List.map (fun x -> if guid = x.Id then { x with HintLevel = Some hintLevel; } else x)
+            { model with Entries = newEntries }
+        newModel, Cmd.none
       | AddOrUpdateEntry ->
         let newModel =
           match model.Editor with
@@ -95,7 +120,7 @@ module App =
                 | None, None -> None, model.Entries 
                 | _, _ -> 
                   let id = Guid.NewGuid()
-                  let entries = { Id = id; Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; } :: model.Entries
+                  let entries = { Id = id; Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; HintLevel = None; } :: model.Entries
                   (Some id, entries)
               | Some guid -> 
                 match strOption e.Title, strOption e.Text with
@@ -107,20 +132,23 @@ module App =
                   (Some guid, entries)
             { model with Editor = None; Entries = newEntries; CurrentEntry = newCurrentEntry }
         newModel, Cmd.none
-      | ToggleTextView id ->
+      | BulkToggleTextView textView ->
         let newModel =
           match model.CurrentEntry with
           | None -> model
           | Some guid ->
-            let toggle x =
-              let newTextView =
-                match x.TextView with
-                | TextView.FullText -> TextView.NoText
-                | TextView.NoText -> TextView.FirstLetter
-                | TextView.FirstLetter -> TextView.FullText
-              { x with TextView = newTextView }
             let newEntries =
-              let newTextParts (textParts : TextPart list) = textParts |> List.map (fun x -> if x.Id = id then toggle x else x)
+              let newTextParts (textParts : TextPart list) = textParts |> List.map (fun x -> if x.TextType = TextType.Word then { x with TextView = textView } else x)
+              model.Entries |> List.map (fun x -> if guid = x.Id then { x with TextParts = newTextParts x.TextParts; } else x)
+            { model with Entries = newEntries }
+        newModel, Cmd.none
+      | ToggleTextView request ->
+        let newModel =
+          match model.CurrentEntry with
+          | None -> model
+          | Some guid ->
+            let newEntries =
+              let newTextParts (textParts : TextPart list) = textParts |> List.map (fun x -> if x.Id = request.Id then { x with TextView = toggleTextView x } else x)
               model.Entries |> List.map (fun x -> if guid = x.Id then { x with TextParts = newTextParts x.TextParts; } else x)
             { model with Entries = newEntries }
         newModel, Cmd.none
@@ -141,14 +169,14 @@ module App =
         | TextType.Number, _ -> x.Text
         | TextType.Punctuation, _ -> x.Text
         | TextType.Word, TextView.FullText -> x.Text
-        | TextType.Word, TextView.FirstLetter -> x.Text |> String.mapi (fun i x -> if i = 0 then x else '_')
+        | TextType.Word, TextView.Letters v -> x.Text |> String.mapi (fun i x -> if i < v then x else '_')
         | TextType.Word, TextView.NoText -> x.Text |> String.map (fun x -> '_')
 
       let g = 
         match x.TextType with
         | TextType.Number -> []
         | TextType.Punctuation -> []
-        | TextType.Word -> [ View.TapGestureRecognizer(command=(fun () -> dispatch (ToggleTextView x.Id))) ]
+        | TextType.Word -> [ View.TapGestureRecognizer(command=(fun () -> dispatch (ToggleTextView { Id = x.Id; TextView = toggleTextView x }))) ]
 
       View.Label(
           text = (if x.HasSpaceBefore then " " + t else t),
@@ -171,19 +199,19 @@ module App =
                 gestureRecognizers = [ View.TapGestureRecognizer(command=(fun () -> dispatch AddOrUpdateEntry)) ])
               yield View.Label(
                 text = "Title",
-                fontSize = FontSize 16.,
-                horizontalOptions = LayoutOptions.Start)
+                fontSize = FontSize 16.)
               yield View.Entry(
                 text = e.Title, 
+                fontSize = FontSize 20.,
                 textChanged = (fun (textArgs : TextChangedEventArgs) -> UpdateTitle textArgs.NewTextValue |> dispatch),
                 placeholder = "Enter title"
                 )
               yield View.Label(
                 text = "Memory text",
-                fontSize = FontSize 16.,
-                horizontalOptions = LayoutOptions.Start)
+                fontSize = FontSize 16.)
               yield View.Editor(
                 text = e.Text, 
+                fontSize = FontSize 20.,
                 textChanged = (fun (textArgs : TextChangedEventArgs) -> UpdateText textArgs.NewTextValue |> dispatch),
                 placeholder = "Paste or enter text to memorize here",
                 autoSize = EditorAutoSizeOption.TextChanges
@@ -201,21 +229,52 @@ module App =
         | None, Some e ->
           View.StackLayout(
             children = [
-              View.Label(
+              yield View.Label(
                 text = IconFont.ArrowLeft,
                 fontFamily = materialFont, 
                 fontSize = FontSize 40.,
                 horizontalOptions = LayoutOptions.Start,
                 gestureRecognizers = [ View.TapGestureRecognizer(command=(fun () -> dispatch ViewList)) ])
-              View.Label(text = e.Title, horizontalOptions = LayoutOptions.Start, horizontalTextAlignment=TextAlignment.Center)
-              View.ScrollView(
+              yield View.Label(text = e.Title, horizontalOptions = LayoutOptions.Start, horizontalTextAlignment=TextAlignment.Center)
+              yield View.ScrollView(
                 View.FlexLayout(
                   direction = FlexDirection.Row,
                   wrap = FlexWrap.Wrap,
                   children = [ 
                       for x in e.TextParts do
                         yield viewTextPart x dispatch ]))
-              View.Button(
+              //match e.HintLevel with
+              //| None ->
+              //  yield View.Button(
+              //    text = "Hint",
+              //    command = (fun () -> dispatch (HintLevelChanged 1))
+              //  )
+              //| Some hintLevel ->
+              //  let maxVal = e.TextParts |> List.map (fun x -> x.Text.Length) |> List.max
+              //  yield View.Label(text = sprintf "Hint letter(s) %i" hintLevel)
+              //  yield View.Slider(
+              //    minimumMaximum = (0.0,double maxVal),
+              //    value = double hintLevel,
+              //    valueChanged = (fun args -> dispatch (HintLevelChanged (int (args.NewValue + 0.5)))))
+              yield View.Button(
+                text = "Blanks",
+                fontFamily = materialFont, 
+                fontSize = FontSize 20.,
+                horizontalOptions = LayoutOptions.Start,
+                command = (fun () -> dispatch (BulkToggleTextView (TextView.NoText))))
+              yield View.Button(
+                text = "First letter",
+                fontFamily = materialFont, 
+                fontSize = FontSize 20.,
+                horizontalOptions = LayoutOptions.Start,
+                command = (fun () -> dispatch (BulkToggleTextView (TextView.Letters 1))))
+              yield View.Button(
+                text = "Full text",
+                fontFamily = materialFont, 
+                fontSize = FontSize 20.,
+                horizontalOptions = LayoutOptions.Start,
+                command = (fun () -> dispatch (BulkToggleTextView (TextView.FullText))))
+              yield View.Button(
                 text = IconFont.Pencil + " Edit",
                 fontFamily = materialFont, 
                 fontSize = FontSize 20.,
@@ -276,7 +335,8 @@ module App =
 
       View.ContentPage(
         //visual = VisualMarker.Material,
-        content = content)
+        content = content,
+        padding = Thickness 0.)
 
     // Note, this declaration is needed if you enable LiveUpdate
     let program = Program.mkProgram init update view
