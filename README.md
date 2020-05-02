@@ -18,4 +18,4 @@ Available on the play store.
 
 ![](Screenshot_GettysburgAddress.png)
 
-[![Build status](https://build.appcenter.ms/v0.1/apps/99994767-f348-48db-a13f-113ddb0cc361/branches/master/badge)](https://appcenter.ms)
+[![Build Status](https://miketalbott.visualstudio.com/memoria/_apis/build/status/talbottmike.Memory?branchName=master)](https://miketalbott.visualstudio.com/memoria/_build/latest?definitionId=8&branchName=master)
