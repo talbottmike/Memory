@@ -28,8 +28,8 @@ steps:
   inputs:
     sourcePath: 'Memory.Android/Properties/AndroidManifest.xml'
     versionCodeOption: 'buildid'
-    versionCode: '$(minor)'
-    versionName: '$(major).$(minor).0'
+    versionCode: '$(Build.BuildId)'
+    versionName: '$(major).0.$(Build.BuildId)'
     printFile: true
 
 - task: XamarinAndroid@1
