@@ -12,8 +12,12 @@ pool:
 variables:
   buildConfiguration: 'Release'
   outputDirectory: '$(build.binariesDirectory)/$(buildConfiguration)'
+  major: 1
+  minor: $[counter(variables['major'], 0)]
 
 steps:
+- bash: echo $(major)
+- bash: echo $(minor)
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
@@ -59,3 +63,5 @@ steps:
     releaseNotesFile: 'RELEASE_NOTES.md'
     destinationType: 'store'
     destinationStoreId: '$(googleplay-alpa-storeid)'
+
+    
