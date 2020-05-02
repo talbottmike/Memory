@@ -54,6 +54,6 @@ steps:
     appSlug: 'talbottmike-outlook.com/Memory'
     appFile: '$(build.artifactstagingdirectory)/*.apk'
     symbolsOption: 'Android'
-    releaseNotesOption: 'input'
-    releaseNotesInput: 'Test alternate CI pipeline'
+    releaseNotesOption: 'file'
+    releaseNotesFile: 'RELEASE_NOTES.md'
     destinationType: 'groups'
