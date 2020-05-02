@@ -47,3 +47,13 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
+
+- task: AppCenterDistribute@3
+  inputs:
+    serverEndpoint: 'App Center'
+    appSlug: 'talbottmike-outlook.com/Memory'
+    appFile: '$(build.artifactstagingdirectory)/*.apk'
+    symbolsOption: 'Android'
+    releaseNotesOption: 'input'
+    releaseNotesInput: 'Test alternate CI pipeline'
+    destinationType: 'groups'
