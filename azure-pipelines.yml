@@ -31,6 +31,7 @@ steps:
     apkFiles: '**/*.apk'
     apksignerKeystoreFile: 'memoria.keystore'
     apksignerKeystorePassword: 'M67aag07!jlW'
+    apksignerKeystoreAlias: 'memoria'
     apksignerKeyPassword: 'M67aag07!jlW'
 
 - task: PublishBuildArtifacts@1
