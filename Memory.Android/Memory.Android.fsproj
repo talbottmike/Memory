@@ -27,7 +27,7 @@
     <RestorePackages>true</RestorePackages>
     <OtherFlags>/warnon:1182</OtherFlags>
     <WarningLevel>4</WarningLevel>
-    <SelectedDevice>Motorola moto x4</SelectedDevice>
+    <SelectedDevice>pixel_2_pie_9_0_-_api_28</SelectedDevice>
     <DefaultDevice>pixel_2_pie_9_0_-_api_28</DefaultDevice>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -116,6 +116,7 @@
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.v7.MediaRouter.28.0.0.3\build\MonoAndroid90\Xamarin.Android.Support.v7.MediaRouter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.v7.MediaRouter.28.0.0.3\build\MonoAndroid81\Xamarin.Android.Support.v7.MediaRouter.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Android.Arch.Lifecycle.LiveData.1.1.1.3\build\monoandroid90\Xamarin.Android.Arch.Lifecycle.LiveData.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Arch.Lifecycle.LiveData.1.1.1.3\build\monoandroid90\Xamarin.Android.Arch.Lifecycle.LiveData.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Forms.Visual.Material.4.5.0.617\build\MonoAndroid10\Xamarin.Forms.Visual.Material.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Forms.Visual.Material.4.5.0.617\build\MonoAndroid10\Xamarin.Forms.Visual.Material.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Azure.Cosmos.3.8.0\build\netstandard2.0\Microsoft.Azure.Cosmos.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Azure.Cosmos.3.8.0\build\netstandard2.0\Microsoft.Azure.Cosmos.targets'))" />
   </Target>
   <ItemGroup>
     <None Include="Properties\AndroidManifest.xml" />
@@ -164,12 +165,45 @@
     <Reference Include="Microsoft.AppCenter.Crashes.Android.Bindings">
       <HintPath>..\packages\Microsoft.AppCenter.Crashes.3.1.0\lib\MonoAndroid403\Microsoft.AppCenter.Crashes.Android.Bindings.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Azure.Cosmos.Client">
+      <HintPath>..\packages\Microsoft.Azure.Cosmos.3.8.0\lib\netstandard2.0\Microsoft.Azure.Cosmos.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Azure.Cosmos.Core">
+      <HintPath>..\packages\Microsoft.Azure.Cosmos.3.8.0\lib\netstandard2.0\Microsoft.Azure.Cosmos.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Azure.Cosmos.Direct">
+      <HintPath>..\packages\Microsoft.Azure.Cosmos.3.8.0\lib\netstandard2.0\Microsoft.Azure.Cosmos.Direct.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Azure.Cosmos.Serialization.HybridRow">
+      <HintPath>..\packages\Microsoft.Azure.Cosmos.3.8.0\lib\netstandard2.0\Microsoft.Azure.Cosmos.Serialization.HybridRow.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Android" />
     <Reference Include="System" />
+    <Reference Include="System.Buffers">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Configuration.ConfigurationManager">
+      <HintPath>..\packages\System.Configuration.ConfigurationManager.4.5.0\lib\netstandard2.0\System.Configuration.ConfigurationManager.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="System.Memory">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.AccessControl">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Permissions">
+      <HintPath>..\packages\System.Security.Permissions.4.5.0\lib\netstandard2.0\System.Security.Permissions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
     <Reference Include="Xamarin.Android.Arch.Lifecycle.LiveData">
@@ -338,4 +372,5 @@
   </ItemGroup>
   <Import Project="..\packages\Xamarin.Android.Arch.Lifecycle.LiveData.1.1.1.3\build\monoandroid90\Xamarin.Android.Arch.Lifecycle.LiveData.targets" Condition="Exists('..\packages\Xamarin.Android.Arch.Lifecycle.LiveData.1.1.1.3\build\monoandroid90\Xamarin.Android.Arch.Lifecycle.LiveData.targets')" />
   <Import Project="..\packages\Xamarin.Forms.Visual.Material.4.5.0.617\build\MonoAndroid10\Xamarin.Forms.Visual.Material.targets" Condition="Exists('..\packages\Xamarin.Forms.Visual.Material.4.5.0.617\build\MonoAndroid10\Xamarin.Forms.Visual.Material.targets')" />
+  <Import Project="..\packages\Microsoft.Azure.Cosmos.3.8.0\build\netstandard2.0\Microsoft.Azure.Cosmos.targets" Condition="Exists('..\packages\Microsoft.Azure.Cosmos.3.8.0\build\netstandard2.0\Microsoft.Azure.Cosmos.targets')" />
 </Project>

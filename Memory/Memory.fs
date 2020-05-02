@@ -322,7 +322,7 @@ module App =
                     backgroundColor = Color.Transparent,
                     horizontalOptions = LayoutOptions.Start,
                     command = (fun () -> dispatch (SelectEntry x.Id)))
-                yield View.Button(
+                yield View.Label(
                   text = IconFont.BookPlus,
                   fontFamily = materialFont, 
                   fontSize = FontSize 40.,
@@ -330,7 +330,7 @@ module App =
                   textColor = Color.RoyalBlue,
                   backgroundColor = Color.Transparent,
                   horizontalOptions = LayoutOptions.Start,
-                  command = (fun () -> dispatch AddEntry))]
+                  gestureRecognizers = [ View.TapGestureRecognizer(command=(fun () -> dispatch AddEntry)) ])]
             )
 
       View.ContentPage(
