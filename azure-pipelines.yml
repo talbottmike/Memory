@@ -25,3 +25,16 @@ steps:
     projectFile: '**/*droid*.fsproj'
     outputDirectory: '$(outputDirectory)'
     configuration: '$(buildConfiguration)'
+
+- task: AndroidSigning@3
+  inputs:
+    apkFiles: '**/*.apk'
+    apksignerKeystoreFile: 'memoria.keystore'
+    apksignerKeystorePassword: 'M67aag07!jlW'
+    apksignerKeyPassword: 'M67aag07!jlW'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
