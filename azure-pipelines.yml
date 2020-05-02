@@ -30,30 +30,32 @@ steps:
   inputs:
     apkFiles: '**/*.apk'
     apksignerKeystoreFile: 'memoria.keystore'
-    apksignerKeystorePassword: 'M67aag07!jlW'
+    apksignerKeystorePassword: '$(apksignerKeystorePassword)'
     apksignerKeystoreAlias: 'memoria'
-    apksignerKeyPassword: 'M67aag07!jlW'
+    apksignerKeyPassword: '$(apksignerKeystorePassword)'
 
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(outputDirectory)'
-    Contents: '**'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+# - task: CopyFiles@2
+#   inputs:
+#     SourceFolder: '$(outputDirectory)'
+#     Contents: '**'
+#     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
 # /work/1/s/Memory.Android/obj/Release/android/bin/memoria.domina.apk
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+# - task: PublishBuildArtifacts@1
+#   inputs:
+#     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+#     ArtifactName: 'drop'
+#     publishLocation: 'Container'
 
 - task: AppCenterDistribute@3
   inputs:
     serverEndpoint: 'App Center'
     appSlug: 'talbottmike-outlook.com/Memory'
-    appFile: '$(build.artifactstagingdirectory)/*.apk'
+    appFile: '$(outputDirectory)/*.apk'
+    # appFile: '$(build.artifactstagingdirectory)/*.apk'
     symbolsOption: 'Android'
     releaseNotesOption: 'file'
     releaseNotesFile: 'RELEASE_NOTES.md'
-    destinationType: 'groups'
+    destinationType: 'store'
+    destinationStoreId: '$(googleplay-alpa-storeid)'
