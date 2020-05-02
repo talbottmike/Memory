@@ -24,6 +24,14 @@ steps:
   inputs:
     restoreSolution: '**/*.sln'
 
+- task: android-manifest-version@1
+  inputs:
+    sourcePath: 'Memory.Android/Properties/AndroidManifest.xml'
+    versionCodeOption: 'buildid'
+    versionCode: '$(Build.BuildId)'
+    versionName: '17.0.$(Build.BuildId)'
+    printFile: true
+
 - task: XamarinAndroid@1
   inputs:
     projectFile: '**/*droid*.fsproj'
@@ -37,20 +45,6 @@ steps:
     apksignerKeystorePassword: '$(apksignerKeystorePassword)'
     apksignerKeystoreAlias: 'memoria'
     apksignerKeyPassword: '$(apksignerKeystorePassword)'
-
-# - task: CopyFiles@2
-#   inputs:
-#     SourceFolder: '$(outputDirectory)'
-#     Contents: '**'
-#     TargetFolder: '$(Build.ArtifactStagingDirectory)'
-
-# /work/1/s/Memory.Android/obj/Release/android/bin/memoria.domina.apk
-
-# - task: PublishBuildArtifacts@1
-#   inputs:
-#     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-#     ArtifactName: 'drop'
-#     publishLocation: 'Container'
 
 - task: AppCenterDistribute@3
   inputs:
