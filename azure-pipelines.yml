@@ -40,11 +40,12 @@ steps:
 
 - task: AndroidSigning@3
   inputs:
-    apkFiles: '**/*.apk'
+    apkFiles: '$(outputDirectory)/*.apk'
     apksignerKeystoreFile: 'memoria.keystore'
     apksignerKeystorePassword: '$(apksignerKeystorePassword)'
     apksignerKeystoreAlias: 'memoria'
     apksignerKeyPassword: '$(apksignerKeystorePassword)'
+    zipalign: true
 
 - task: AppCenterDistribute@3
   inputs:
