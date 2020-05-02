@@ -34,6 +34,14 @@ steps:
     apksignerKeystoreAlias: 'memoria'
     apksignerKeyPassword: 'M67aag07!jlW'
 
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(outputDirectory)'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+# /work/1/s/Memory.Android/obj/Release/android/bin/memoria.domina.apk
+
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
