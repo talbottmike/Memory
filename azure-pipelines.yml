@@ -57,6 +57,6 @@ steps:
     releaseNotesOption: 'file'
     releaseNotesFile: 'RELEASE_NOTES.md'
     destinationType: 'store'
-    destinationStoreId: '$(googleplay-alpa-storeid)'
+    destinationStoreId: '$(googleplay-beta-storeid)'
 
     
