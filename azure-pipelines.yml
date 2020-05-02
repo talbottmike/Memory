@@ -12,7 +12,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
   outputDirectory: '$(build.binariesDirectory)/$(buildConfiguration)'
-  major: 1
+  major: 18
   minor: $[counter(variables['major'], 0)]
 
 steps:
@@ -28,8 +28,8 @@ steps:
   inputs:
     sourcePath: 'Memory.Android/Properties/AndroidManifest.xml'
     versionCodeOption: 'buildid'
-    versionCode: '$(Build.BuildId)'
-    versionName: '17.0.$(Build.BuildId)'
+    versionCode: '$(minor)'
+    versionName: '$(major).$(minor).0'
     printFile: true
 
 - task: XamarinAndroid@1
