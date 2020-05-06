@@ -1,0 +1,32 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: NodeTool@0
+  displayName: 'Use Node >= 8.0'
+  inputs:
+    versionSpec: '>= 8.0'
+
+- task: YarnInstaller@3
+  inputs:
+    versionSpec: '>= 1.10.1'
+
+- script: 'dotnet tool restore'
+  displayName: 'restore tools'
+
+- script: 'dotnet fake build --target bundle'
+  displayName: 'run build script copy'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    PathtoPublish: deploy
+  condition: succeededOrFailed()
