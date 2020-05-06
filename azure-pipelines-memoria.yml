@@ -22,13 +22,16 @@ steps:
 - task: CmdLine@2
   inputs:
     script: 'dotnet tool restore'
+    workingDirectory: 'memoria'
 
 - task: CmdLine@2
   inputs:
     script: 'dotnet fake build --target bundle'
+    workingDirectory: 'memoria'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact'
   inputs:
     PathtoPublish: deploy
   condition: succeededOrFailed()
+
