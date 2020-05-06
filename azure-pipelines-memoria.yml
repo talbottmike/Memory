@@ -19,11 +19,13 @@ steps:
   inputs:
     versionSpec: '>= 1.10.1'
 
-- script: 'dotnet tool restore'
-  displayName: 'restore tools'
+- task: CmdLine@2
+  inputs:
+    script: 'dotnet tool restore'
 
-- script: 'dotnet fake build --target bundle'
-  displayName: 'run build script copy'
+- task: CmdLine@2
+  inputs:
+    script: 'dotnet fake build --target bundle'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact'
