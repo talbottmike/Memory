@@ -31,7 +31,7 @@ let webApp = router {
 
 let app = application {
     #if !DEBUG
-	    disable_diagnostics
+        disable_diagnostics
     #endif 
     url ("http://0.0.0.0:" + port.ToString() + "/")
     use_router webApp
