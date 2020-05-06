@@ -112,15 +112,18 @@ Target.create "Bundle" (fun _ ->
     let serverDir = Path.combine deployDir "Server"
     let clientDir = Path.combine deployDir "Client"
     let publicDir = Path.combine clientDir "public"
+    let siteDeployDir = Path.combine deployDir "Site"
 
     let publishArgs = sprintf "publish -c Release -o \"%s\"" serverDir
     runDotNet publishArgs serverPath
 
+    // include static client files in client deployment artifacts
     Shell.copyDir publicDir clientDeployPath FileFilter.allFiles
+    
+    // Consolidate client and server artifacts for site deployment
+    Shell.copyDir siteDeployDir serverDir FileFilter.allFiles    
+    Shell.copyDir (Path.combine siteDeployDir "Client") clientDir FileFilter.allFiles
 )
-
-
-
 
 
 open Fake.Core.TargetOperators
