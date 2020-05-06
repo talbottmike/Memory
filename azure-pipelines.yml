@@ -22,7 +22,7 @@ steps:
 
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: '**/*.sln'
+    restoreSolution: '**/Memory.sln'
 
 - task: android-manifest-version@1
   inputs:
