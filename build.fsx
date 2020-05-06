@@ -122,7 +122,7 @@ Target.create "Bundle" (fun _ ->
     
     // Consolidate client and server artifacts for site deployment
     Shell.copyDir siteDeployDir serverDir FileFilter.allFiles    
-    Shell.copyDir (Path.combine siteDeployDir "Client") clientDir FileFilter.allFiles
+    Shell.copyDir siteDeployDir clientDir FileFilter.allFiles
 )
 
 

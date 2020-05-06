@@ -15,7 +15,11 @@ let tryGetEnv key =
     | x when String.IsNullOrWhiteSpace x -> None 
     | x -> Some x
 
-let publicPath = Path.GetFullPath "../Client/public"
+//let publicPath = Path.GetFullPath "../Client/public"
+let publicPath =
+  tryGetEnv "public_path"
+  |> Option.defaultValue "./public"
+  |> Path.GetFullPath
 
 let port =
     "SERVER_PORT"
