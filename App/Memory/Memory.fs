@@ -1,4 +1,4 @@
-﻿namespace Memory
+namespace Memory
 
 open System.Diagnostics
 open Fabulous
@@ -10,27 +10,9 @@ open System
 open Microsoft.AppCenter
 open Microsoft.AppCenter.Analytics
 open Microsoft.AppCenter.Crashes
+open Shared
 
-module App = 
-    type TextType = | Word | Punctuation | Number
-    type TextView = | FullText | Letters of int | NoText 
-    type TextPart = { Id : int; Text : string; TextType : TextType; TextView : TextView; HasSpaceBefore : bool; }
-    type MemorizationEntry = { Id : Guid; Title : string; Text : string; TextParts : TextPart list; HintLevel : int option; }
-    type EditorValues = { EntryId : Guid option; Title : string; Text : string; }
-    type Model = { Entries : MemorizationEntry list; Editor : EditorValues option; CurrentEntry : Guid option; } 
-    type TextViewRequest = { Id : int; TextView : TextView; }
-    type Msg =
-      | AddEntry
-      | UpdateEntry of Guid
-      | RemoveEntry of Guid
-      | SelectEntry of Guid
-      | AddOrUpdateEntry
-      | UpdateText of string
-      | UpdateTitle of string
-      | ToggleTextView of TextViewRequest
-      | BulkToggleTextView of TextView
-      | HintLevelChanged of int
-      | ViewList
+module App =
     
     let materialFont =
       match Device.RuntimePlatform with
@@ -38,130 +20,17 @@ module App =
       | Device.Android -> "materialdesignicons-webfont.ttf#Material Design Icons"
       | _ -> null
 
-    let (|FirstRegexGroup|_|) pattern input =
-       let m = Regex.Match(input,pattern) 
-       if (m.Success) then Some m.Groups.[1].Value else None  
-
-    let identifyTextType id (s:string) =
-      match s with
-      | FirstRegexGroup "[\d]" v -> { Id = id; Text = s; TextType = TextType.Number; TextView = FullText; HasSpaceBefore = false; }
-      | FirstRegexGroup "[^\w\s']" v -> { Id = id; Text = s; TextType = TextType.Punctuation; TextView = FullText; HasSpaceBefore = false; }
-      | _ -> { Id = id; Text = s; TextType = TextType.Word; TextView = FullText; HasSpaceBefore = false; }
-  
-    let getTextParts (t : string) = 
-      Analytics.TrackEvent("Getting text parts")
-      Regex.Split(t, @"(\b[^\s]+\b)")
-      |> Seq.mapi identifyTextType
-      |> Seq.pairwise
-      |> Seq.collect (fun (x,y) -> 
-        [ (if x.Text = " " then { y with HasSpaceBefore = true; } else y) ]
-      )
-      |> Seq.filter (fun x -> x.Text.Trim() <> "")
-      |> Seq.toList
-      |> (fun x -> Analytics.TrackEvent(sprintf "Found %i text parts" x.Length); x)
-  
-    let strOption (s : string) = if String.IsNullOrWhiteSpace s then None else Some s
-
-    let incrementTextView (x : TextPart) =
-      match x.TextView with
-      | TextView.FullText -> TextView.NoText
-      | TextView.NoText -> TextView.Letters 1
-      | TextView.Letters v -> 
-        if x.Text.Length <= v then TextView.Letters (v + 1) else TextView.FullText
-
-    let toggleTextView (x : TextPart) =
-      match x.TextView with
-      | TextView.FullText -> TextView.NoText
-      | TextView.NoText -> TextView.Letters 1
-      | TextView.Letters _ -> TextView.FullText
-
     let init () : Model * Cmd<Msg> =
       let model = { Editor = Some { Title = ""; Text = ""; EntryId = None; }; Entries = []; CurrentEntry = None; }
       model, Cmd.none        
         
     let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
-      match msg with
-      | SelectEntry guid ->
-        { model with CurrentEntry = Some guid; }, Cmd.none
-      | UpdateText t ->
-        let newEditor =
-          model.Editor
-          |> Option.map (fun e -> { e with Text = t })
-        { model with Editor = newEditor; }, Cmd.none
-      | UpdateTitle t ->
-        let newEditor =
-          model.Editor
-          |> Option.map (fun e -> { e with Title = t })
-        { model with Editor = newEditor; }, Cmd.none
-      | RemoveEntry guid ->
-        let newModel =
-          let newEntries = model.Entries |> List.filter (fun x -> guid <> x.Id)
-          { model with Editor = None; Entries = newEntries; CurrentEntry = None; }
-        newModel, Cmd.none
-      | HintLevelChanged hintLevel ->
-        let newModel =
-          match model.CurrentEntry with
-          | None -> model
-          | Some guid ->
-            let newEntries =
-              model.Entries |> List.map (fun x -> if guid = x.Id then { x with HintLevel = Some hintLevel; } else x)
-            { model with Entries = newEntries }
-        newModel, Cmd.none
-      | AddOrUpdateEntry ->
-        let newModel =
-          match model.Editor with
-          | None -> 
-            model
-          | Some e -> 
-            let newCurrentEntry, newEntries =
-              match e.EntryId with
-              | None -> 
-                match strOption e.Title, strOption e.Text with
-                | None, None -> None, model.Entries 
-                | _, _ -> 
-                  let id = Guid.NewGuid()
-                  let entries = { Id = id; Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; HintLevel = None; } :: model.Entries
-                  (Some id, entries)
-              | Some guid -> 
-                match strOption e.Title, strOption e.Text with
-                | None, None -> 
-                  let entries = model.Entries |> List.filter (fun x -> guid <> x.Id)
-                  (None, entries)
-                | _, _ -> 
-                  let entries = model.Entries |> List.map (fun x -> if guid = x.Id then { x with Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; } else x)
-                  (Some guid, entries)
-            { model with Editor = None; Entries = newEntries; CurrentEntry = newCurrentEntry }
-        newModel, Cmd.none
-      | BulkToggleTextView textView ->
-        let newModel =
-          match model.CurrentEntry with
-          | None -> model
-          | Some guid ->
-            let newEntries =
-              let newTextParts (textParts : TextPart list) = textParts |> List.map (fun x -> if x.TextType = TextType.Word then { x with TextView = textView } else x)
-              model.Entries |> List.map (fun x -> if guid = x.Id then { x with TextParts = newTextParts x.TextParts; } else x)
-            { model with Entries = newEntries }
-        newModel, Cmd.none
-      | ToggleTextView request ->
-        let newModel =
-          match model.CurrentEntry with
-          | None -> model
-          | Some guid ->
-            let newEntries =
-              let newTextParts (textParts : TextPart list) = textParts |> List.map (fun x -> if x.Id = request.Id then { x with TextView = toggleTextView x } else x)
-              model.Entries |> List.map (fun x -> if guid = x.Id then { x with TextParts = newTextParts x.TextParts; } else x)
-            { model with Entries = newEntries }
-        newModel, Cmd.none
-      | AddEntry ->
-        { model with Editor = Some { EntryId = None; Text = ""; Title = ""; }}, Cmd.none
-      | UpdateEntry guid ->
-        let editor = 
-          model.Entries 
-          |> List.tryFind (fun x -> x.Id = guid)
-          |> Option.map (fun x -> { EntryId = Some x.Id; Text = x.Text; Title = x.Title; })
-        { model with Editor = editor; }, Cmd.none
-      | ViewList ->
-        { model with Editor = None; CurrentEntry = None; }, Cmd.none
+      let newModel, msgs = Helpers.update msg model
+      let cmd =
+        match msgs with
+        | [] -> Cmd.none
+        | _ -> msgs |> List.map Cmd.ofMsg |> Cmd.batch
+      newModel, cmd
     
     let viewTextPart (x : TextPart) dispatch =
       let t =
@@ -176,7 +45,7 @@ module App =
         match x.TextType with
         | TextType.Number -> []
         | TextType.Punctuation -> []
-        | TextType.Word -> [ View.TapGestureRecognizer(command=(fun () -> dispatch (ToggleTextView { Id = x.Id; TextView = toggleTextView x }))) ]
+        | TextType.Word -> [ View.TapGestureRecognizer(command=(fun () -> dispatch (ToggleTextView { Id = x.Id; TextView = Helpers.toggleTextView x }))) ]
 
       View.Label(
           text = (if x.HasSpaceBefore then " " + t else t),
@@ -381,7 +250,7 @@ type App () as app =
             | true, (:? string as json) -> 
 
                 Console.WriteLine("OnResume: restoring model from app.Properties, json = {0}", json)
-                let model = Newtonsoft.Json.JsonConvert.DeserializeObject<App.Model>(json)
+                let model = Newtonsoft.Json.JsonConvert.DeserializeObject<Shared.Model>(json)
 
                 Console.WriteLine("OnResume: restoring model from app.Properties, model = {0}", (sprintf "%0A" model))
                 runner.SetCurrentModel (model, Cmd.none)

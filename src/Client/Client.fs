@@ -20,93 +20,18 @@ let defaultEntry =
       Text = defaultText
       TextParts = Helpers.getTextParts defaultText
       HintLevel = None }
+
 let init () : Model * Cmd<Msg> =
   let model = { Editor = Some { Title = ""; Text = ""; EntryId = None; }; Entries = [ defaultEntry ]; CurrentEntry = None; }
   model, Cmd.none  
   
 let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
-  match msg with
-  | SelectEntry guid ->
-    { model with CurrentEntry = Some guid; }, Cmd.none
-  | UpdateText t ->
-    let newEditor =
-      model.Editor
-      |> Option.map (fun e -> { e with Text = t })
-    { model with Editor = newEditor; }, Cmd.none
-  | UpdateTitle t ->
-    let newEditor =
-      model.Editor
-      |> Option.map (fun e -> { e with Title = t })
-    { model with Editor = newEditor; }, Cmd.none
-  | RemoveEntry guid ->
-    let newModel =
-      let newEntries = model.Entries |> List.filter (fun x -> guid <> x.Id)
-      { model with Editor = None; Entries = newEntries; CurrentEntry = None; }
-    newModel, Cmd.none
-  | HintLevelChanged hintLevel ->
-    let newModel =
-      match model.CurrentEntry with
-      | None -> model
-      | Some guid ->
-        let newEntries =
-          model.Entries |> List.map (fun x -> if guid = x.Id then { x with HintLevel = Some hintLevel; } else x)
-        { model with Entries = newEntries }
-    newModel, Cmd.none
-  | AddOrUpdateEntry ->
-    let newModel =
-      match model.Editor with
-      | None -> 
-        model
-      | Some e -> 
-        let newCurrentEntry, newEntries =
-          match e.EntryId with
-          | None -> 
-            match strOption e.Title, strOption e.Text with
-            | None, None -> None, model.Entries 
-            | _, _ -> 
-              let id = Guid.NewGuid()
-              let entries = { Id = id; Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; HintLevel = None; } :: model.Entries
-              (Some id, entries)
-          | Some guid -> 
-            match strOption e.Title, strOption e.Text with
-            | None, None -> 
-              let entries = model.Entries |> List.filter (fun x -> guid <> x.Id)
-              (None, entries)
-            | _, _ -> 
-              let entries = model.Entries |> List.map (fun x -> if guid = x.Id then { x with Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; } else x)
-              (Some guid, entries)
-        { model with Editor = None; Entries = newEntries; CurrentEntry = newCurrentEntry }
-    newModel, Cmd.none
-  | BulkToggleTextView textView ->
-    let newModel =
-      match model.CurrentEntry with
-      | None -> model
-      | Some guid ->
-        let newEntries =
-          let newTextParts (textParts : TextPart list) = textParts |> List.map (fun x -> if x.TextType = TextType.Word then { x with TextView = textView } else x)
-          model.Entries |> List.map (fun x -> if guid = x.Id then { x with TextParts = newTextParts x.TextParts; } else x)
-        { model with Entries = newEntries }
-    newModel, Cmd.none
-  | ToggleTextView request ->
-    let newModel =
-      match model.CurrentEntry with
-      | None -> model
-      | Some guid ->
-        let newEntries =
-          let newTextParts (textParts : TextPart list) = textParts |> List.map (fun x -> if x.Id = request.Id then { x with TextView = toggleTextView x } else x)
-          model.Entries |> List.map (fun x -> if guid = x.Id then { x with TextParts = newTextParts x.TextParts; } else x)
-        { model with Entries = newEntries }
-    newModel, Cmd.none
-  | AddEntry ->
-    { model with Editor = Some { EntryId = None; Text = ""; Title = ""; }}, Cmd.none
-  | UpdateEntry guid ->
-    let editor = 
-      model.Entries 
-      |> List.tryFind (fun x -> x.Id = guid)
-      |> Option.map (fun x -> { EntryId = Some x.Id; Text = x.Text; Title = x.Title; })
-    { model with Editor = editor; }, Cmd.none
-  | ViewList ->
-    { model with Editor = None; CurrentEntry = None; }, Cmd.none
+  let newModel, msgs = Helpers.update msg model
+  let cmd =
+    match msgs with
+    | [] -> Cmd.none
+    | _ -> msgs |> List.map Cmd.ofMsg |> Cmd.batch
+  newModel, cmd
 
 let button txt onClick =
     Button.button
@@ -160,7 +85,7 @@ open Elmish.Debug
 open Elmish.HMR
 #endif
 
-// #if !DEBUG
+#if !DEBUG
 open Fable.Core
 open Fable.Core.JsInterop
 
@@ -171,7 +96,7 @@ if hasField "serviceWorker" navigator then
     navigator?serviceWorker?register("./service-worker.js")
 else
     JS.console.log "NOT Registering service worker"
-// #endif
+#endif
 
 Program.mkProgram init update view
 #if DEBUG
