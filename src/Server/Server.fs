@@ -36,6 +36,7 @@ let webApp = router {
 let app = application {
     disable_diagnostics
     url ("http://0.0.0.0:" + port.ToString() + "/")
+    use_mime_types [(".webmanifest","application/manifest+json"); ]
     use_router webApp
     memory_cache
     use_static publicPath
