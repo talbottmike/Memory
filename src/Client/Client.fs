@@ -23,7 +23,7 @@ let defaultEntry =
       HintLevel = None }
 
 let init () : Model * Cmd<Msg> =
-  let model = { Editor = Some { Title = ""; Text = ""; EntryId = None; }; Entries = [ defaultEntry ]; CurrentEntry = None; }
+  let model = { Editor = None; Entries = [ defaultEntry ]; CurrentEntry = Some defaultEntry.Id; }
   model, Cmd.none  
   
 let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
