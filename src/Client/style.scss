@@ -12,6 +12,28 @@ $FontPathOpenSans: "~open-sans-fonts/open-sans";
 @import '~open-sans-fonts/open-sans';
 $family-primary: 'Open Sans';
 
+// First include initial variables and helpers function from Bulma
+@import "~bulma/sass/utilities/initial-variables";
+@import "~bulma/sass/utilities/functions";
+
+// Theme based on
+// http://colormind.io/bootstrap/
+$primary: #F80505; //#D6D16F;
+$info: #2f2c34;
+$success: #3fad6c;
+$warning: #bc9d34;
+$danger:	#f44336;
+//$default: #999999;
+
+// Invert colors
+$primary-invert: findColorInvert($primary);
+
+// Import the derived variables from Bulma
+// It will use our $custom-colors
+@import "~bulma/sass/utilities/derived-variables";
+
+
 // Bulma
 @import "~bulma/bulma";
+@import '~bulma-slider/dist/css/bulma-slider.sass';
 

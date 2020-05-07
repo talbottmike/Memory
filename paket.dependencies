@@ -24,6 +24,7 @@ group Client
     nuget Fable.FontAwesome.Free ~> 2
     nuget Fable.Browser.Navigator
     nuget Fable.Browser.Worker
+    nuget Fable.MaterialUI.MaterialDesignIcons
 
 group Build
     source https://api.nuget.org/v3/index.json

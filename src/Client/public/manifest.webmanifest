@@ -1,5 +1,5 @@
 {
-    "short_name": "memoria",
+    "short_name": "memoriaPWA",
     "name": "memoria PWA",
     "start_url": "/index.html",
     "display":"fullscreen",
