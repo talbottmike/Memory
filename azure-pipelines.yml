@@ -22,11 +22,11 @@ steps:
 
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: '**/Memory.sln'
+    restoreSolution: 'App/Memory.sln'
 
 - task: android-manifest-version@1
   inputs:
-    sourcePath: 'Memory.Android/Properties/AndroidManifest.xml'
+    sourcePath: 'App/Memory.Android/Properties/AndroidManifest.xml'
     versionCodeOption: 'buildid'
     versionCode: '$(Build.BuildId)'
     versionName: '$(major).0.$(Build.BuildId)'
@@ -34,7 +34,7 @@ steps:
 
 - task: XamarinAndroid@1
   inputs:
-    projectFile: '**/*droid*.fsproj'
+    projectFile: 'App/**/*droid*.fsproj'
     outputDirectory: '$(outputDirectory)'
     configuration: '$(buildConfiguration)'
 
