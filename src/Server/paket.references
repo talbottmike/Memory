@@ -1,4 +1,6 @@
 group Server
     FSharp.Core
     Saturn
+    Saturn.Extensions.Authorization
     Thoth.Json.Giraffe
+    Microsoft.Extensions.Configuration.Json

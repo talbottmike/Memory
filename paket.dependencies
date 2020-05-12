@@ -1,11 +1,14 @@
 group Server
     source https://api.nuget.org/v3/index.json
-    framework: netcoreapp3.0
+    framework: netcoreapp3.1
     storage: none
 
     nuget FSharp.Core
     nuget Saturn
-    nuget Microsoft.AspNetCore.Authentication.JwtBearer 3.0.2 // pin for netcoreapp30
+    nuget Saturn.Extensions.Authorization
+    nuget Microsoft.AspNetCore.Authentication.Google
+    nuget Microsoft.AspNetCore.Authentication.JwtBearer
+    nuget Microsoft.Extensions.Configuration.Json
     nuget Thoth.Json.Giraffe
 
 group Client
@@ -18,7 +21,7 @@ group Client
     nuget Fable.Elmish.Debugger ~> 3
     nuget Fable.Elmish.HMR ~> 4
     nuget Fable.Elmish.React ~> 3
-    nuget Thoth.Fetch ~> 1
+    nuget Thoth.Fetch
     nuget Fable.React ~> 5
     nuget Fulma ~> 2
     nuget Fable.FontAwesome.Free ~> 2
