@@ -10,6 +10,7 @@ open Fulma
 open Thoth.Json
 open System
 open Fable.FontAwesome
+open Fable.Core
 
 open Shared
 open Shared.Helpers
@@ -22,17 +23,83 @@ let defaultEntry =
       TextParts = Helpers.getTextParts defaultText
       HintLevel = None }
 
+let gapiImported: obj = Fable.Core.JsInterop.importAll "./platform.js"
+
+module Auth =
+  open Fable.Core.JsInterop
+
+  let init dispatch = 
+    Fable.Core.JS.console.log("init called")
+    let onSignIn g = 
+      // JS.console.log("on sign in, granted scopes: ")
+      // JS.console.log(g?getGrantedScopes())
+      let token = g?getAuthResponse()?id_token
+      let profile = g?getBasicProfile()
+      let profileId = profile?getId()
+      let profileName =  profile?getName()
+      let profileEmail =  profile?getEmail()
+      // JS.console.log(profile)
+      let user = 
+        { Token = token.ToString()
+          Id = profileId.ToString()
+          Name = profileName.ToString()
+          Email = profileEmail.ToString() }
+        |> AppUser.GoogleUser
+      dispatch (SignedIn user)
+
+    let configureAuth () =
+      Browser.Dom.window?gapi?auth2?init(
+        {|
+          client_id = "189067839764-sh4401gif3gmbi748dhrcnun747l7h09.apps.googleusercontent.com"
+          fetch_basic_profile = false
+          scope = "profile email openid"
+        |}
+      )
+      let config = 
+        {|
+          scope = "profile email openid"
+          width = 200
+          height = 36
+          longtitle = true
+          theme = "light"
+          onsuccess = onSignIn
+          onfailure = null
+        |}
+      Browser.Dom.window?gapi?signin2?render("g-signin-btn", config);
+    Browser.Dom.window?gapi?load("auth2", configureAuth)
+    ()
+
+  let disconnect dispatch =
+    let auth2 = Browser.Dom.window?gapi?auth2?getAuthInstance()
+    let isUserSignedIn = auth2?isSignedIn?get()
+    if ((bool) isUserSignedIn)
+    then
+      auth2?disconnect()
+      dispatch AuthDisconnected
+    else 
+      //JS.console.log("Not signed in, cannot disconnect")
+      ()
+
+  let signOut dispatch =
+    let auth2 = Browser.Dom.window?gapi?auth2?getAuthInstance()
+    let signOutFn _ =
+      dispatch SignedOut
+    auth2?signOut()?``then``(signOutFn)
+
 let init () : Model * Cmd<Msg> =
-  let model = { Editor = None; Entries = [ defaultEntry ]; CurrentEntry = Some defaultEntry.Id; }
-  model, Cmd.none  
+  let model = { User = None; Token = None; Editor = None; Entries = [ defaultEntry ]; CurrentEntry = Some defaultEntry.Id; }
+  model, Cmd.none
   
 let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
   let newModel, msgs = Helpers.update msg model
+  let fetchCmd =
+    match msg with
+    | _ -> None
   let cmd =
     match msgs with
     | [] -> Cmd.none
     | _ -> msgs |> List.map Cmd.ofMsg |> Cmd.batch
-  newModel, cmd
+  newModel, Cmd.batch ( cmd :: (fetchCmd |> Option.toList) )
 
 let button txt onClick =
     Button.button
@@ -251,7 +318,7 @@ let viewContent (model: Model) dispatch =
       | _ ->
         Columns.columns [ ]
           [ Column.column [ ]
-              [ bookshelfIcon [ ] ] ]
+              [ bookshelfIcon [ ]; span [ ] [ str "Entries" ] ] ]
         for x in model.Entries do
           Columns.columns [ ]
             [ Column.column [ ]
@@ -282,22 +349,38 @@ let viewContent (model: Model) dispatch =
       //               gestureRecognizers = [ View.TapGestureRecognizer(command=(fun () -> dispatch AddEntry)) ])]
       //         )
   ]
+
 let view (model : Model) (dispatch : Msg -> unit) =
-    div []
-        [ Navbar.navbar [ Navbar.Color IsPrimary ]
-            [ Navbar.Brand.div [ ]
-                [ Navbar.Item.a [ Navbar.Item.Props [ Href "#" ] ]
-                    [ img [ Style [ Width "2.5em" ] // Force svg display
-                            Src "shape.svg" ] ]
-                  Navbar.Item.div [ ]
-                    [ Heading.h2 [ ]
-                        [ str "memoria" ] ] ] ]
-              
-        
-          Container.container []
-              [ Card.card []
-                  [ Card.content []
-                      [ viewContent model dispatch ] ] ] ]
+  div [ OnLoad (fun _ -> Auth.init dispatch; ) ]
+    [ Navbar.navbar [ Navbar.Color IsPrimary ]
+                [ Navbar.Brand.div [ ]
+                    [ Navbar.Item.a [ Navbar.Item.Props [ Href "#" ] ]
+                        [ img [ Style [ Width "2.5em" ] // Force svg display
+                                Src "shape.svg" ] ]
+                      Navbar.Item.div [ ]
+                        [ Heading.h2 [ ]
+                            [ str "memoria" ] ] ]
+                  if model.User.IsSome then
+                    Navbar.End.div [ ]
+                      [ Navbar.Item.div [ ] 
+                          [ Button.button [ Button.OnClick (fun _ -> Auth.signOut dispatch) ] 
+                              [ str "Sign out"] ] ] ]
+                              // div [ ] [ a [ Href "#"; OnClick (fun _ -> authDisconnect dispatch) ] [ str "Disconnect" ] ]
+      Section.section [(if model.User.IsSome then Section.Props [ Style [ Props.Display DisplayOptions.None ] ] else Section.Props [ ] ) ] [ Container.container [ ]
+        [ Columns.columns [ Columns.IsCentered ]
+            [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
+                [ div [ Id "g-signin-btn" ] [ ] ] ]
+          Columns.columns [ Columns.IsCentered ]
+            [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
+                [ Text.p [ Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ] [ str "or" ] ] ]
+          Columns.columns [ Columns.IsCentered ]
+            [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
+                [ iconButton "View as sample user" Fa.Solid.SignInAlt (fun _ -> dispatch (SignedIn AppUser.SampleUser)) ] ] ] ] 
+      match model.User with
+      | None -> ()
+      | Some user ->
+        Section.section [ ] 
+          [ viewContent model dispatch ] ]
 
 #if DEBUG
 open Elmish.Debug

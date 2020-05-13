@@ -27,6 +27,7 @@ group Client
     nuget Fable.FontAwesome.Free ~> 2
     nuget Fable.Browser.Navigator
     nuget Fable.Browser.Worker
+    nuget Fable.Browser.Dom
     nuget Fable.MaterialUI.MaterialDesignIcons
 
 group Build

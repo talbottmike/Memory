@@ -1,14 +1,16 @@
 namespace Shared
 open System
 
-type Counter = { Value : int }
-
 type TextType = | Word | Punctuation | Number
 type TextView = | FullText | Letters of int | NoText 
 type TextPart = { Id : int; Text : string; TextType : TextType; TextView : TextView; HasSpaceBefore : bool; }
 type MemorizationEntry = { Id : Guid; Title : string; Text : string; TextParts : TextPart list; HintLevel : int option; }
 type EditorValues = { EntryId : Guid option; Title : string; Text : string; }
-type Model = { Entries : MemorizationEntry list; Editor : EditorValues option; CurrentEntry : Guid option; } 
+type GoogleUser = { Token : string; Id : string; Name : string; Email : string; }
+type AppUser =
+  | GoogleUser of GoogleUser
+  | SampleUser
+type Model = { User : AppUser option; Token : string option; Entries : MemorizationEntry list; Editor : EditorValues option; CurrentEntry : Guid option; } 
 type TextViewRequest = { Id : int; TextView : TextView; }
 
 type Msg =
@@ -23,6 +25,9 @@ type Msg =
   | BulkToggleTextView of TextView
   | HintLevelChanged of int
   | ViewList
+  | SignedIn of AppUser
+  | SignedOut
+  | AuthDisconnected
 
 module Helpers =
   open System.Text.RegularExpressions
@@ -59,6 +64,11 @@ module Helpers =
     
   let update (msg : Msg) (model : Model) : Model * Msg list =
     match msg with
+    | AuthDisconnected
+    | SignedOut ->
+      { model with User = None }, []
+    | SignedIn u ->
+      { model with User = Some u; }, []
     | SelectEntry guid ->
       { model with CurrentEntry = Some guid; }, []
     | UpdateText t ->
