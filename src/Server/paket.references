@@ -4,3 +4,7 @@ group Server
     Saturn.Extensions.Authorization
     Thoth.Json.Giraffe
     Microsoft.Extensions.Configuration.Json
+    Google.Apis.Auth
+    FSharp.CosmosDb
+    FsToolkit.ErrorHandling
+    FsToolkit.ErrorHandling.TaskResult

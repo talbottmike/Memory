@@ -9,7 +9,11 @@ group Server
     nuget Microsoft.AspNetCore.Authentication.Google
     nuget Microsoft.AspNetCore.Authentication.JwtBearer
     nuget Microsoft.Extensions.Configuration.Json
+    nuget Google.Apis.Auth
     nuget Thoth.Json.Giraffe
+    nuget FSharp.CosmosDb
+    nuget FsToolkit.ErrorHandling
+    nuget FsToolkit.ErrorHandling.TaskResult
 
 group Client
     source https://api.nuget.org/v3/index.json

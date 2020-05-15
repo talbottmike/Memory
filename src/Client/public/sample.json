@@ -1,0 +1,1990 @@
+[
+    {
+      "Id": "9e2cd61d-ece5-4e94-a403-b2f0afadab17",
+      "Title": "Gettysburg address",
+      "Text": "Four score and seven years ago our fathers brought forth, upon this continent, a new nation, conceived in liberty, and dedicated to the proposition that \"all men are created equal\"/n/n Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived, and so dedicated, can long endure. We are met on a great battle field of that war. We have come to dedicate a portion of it, as a final resting place for those who died here, that the nation might live. This we may, in all propriety do. But, in a larger sense, we can not dedicate -- we can not consecrate -- we can not hallow, this ground-- The brave men, living and dead, who struggled here, have hallowed it, far above our poor power to add or detract. The world will little note, nor long remember what we say here; while it can never forget what they did here./n/n It is rather for us, the living, to stand here, we here be dedica-ted to the great task remaining before us -- that, from these honored dead we take increased devotion to that cause for which they here, gave the last full measure of devotion -- that we here highly resolve these dead shall not have died in vain; that the nation, shall have a new birth of freedom, and that government of the people by the people for the people, shall not perish from the earth.",
+      "TextParts": [
+        {
+          "Id": 1,
+          "Text": "Four",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 3,
+          "Text": "score",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 5,
+          "Text": "and",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 7,
+          "Text": "seven",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 9,
+          "Text": "years",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 11,
+          "Text": "ago",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 13,
+          "Text": "our",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 15,
+          "Text": "fathers",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 17,
+          "Text": "brought",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 19,
+          "Text": "forth",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 20,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 21,
+          "Text": "upon",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 23,
+          "Text": "this",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 25,
+          "Text": "continent",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 26,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 27,
+          "Text": "a",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 29,
+          "Text": "new",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 31,
+          "Text": "nation",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 32,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 33,
+          "Text": "conceived",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 35,
+          "Text": "in",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 37,
+          "Text": "liberty",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 38,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 39,
+          "Text": "and",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 41,
+          "Text": "dedicated",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 43,
+          "Text": "to",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 45,
+          "Text": "the",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 47,
+          "Text": "proposition",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 49,
+          "Text": "that",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 50,
+          "Text": " \"",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 51,
+          "Text": "all",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 53,
+          "Text": "men",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 55,
+          "Text": "are",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 57,
+          "Text": "created",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 59,
+          "Text": "equal\"/n/n",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 61,
+          "Text": "Now",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 63,
+          "Text": "we",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 65,
+          "Text": "are",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 67,
+          "Text": "engaged",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 69,
+          "Text": "in",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 71,
+          "Text": "a",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 73,
+          "Text": "great",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 75,
+          "Text": "civil",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 77,
+          "Text": "war",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 78,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 79,
+          "Text": "testing",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 81,
+          "Text": "whether",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 83,
+          "Text": "that",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 85,
+          "Text": "nation",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 86,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 87,
+          "Text": "or",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 89,
+          "Text": "any",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 91,
+          "Text": "nation",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 93,
+          "Text": "so",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 95,
+          "Text": "conceived",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 96,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 97,
+          "Text": "and",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 99,
+          "Text": "so",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 101,
+          "Text": "dedicated",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 102,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 103,
+          "Text": "can",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 105,
+          "Text": "long",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 107,
+          "Text": "endure",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 108,
+          "Text": ". ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 109,
+          "Text": "We",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 111,
+          "Text": "are",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 113,
+          "Text": "met",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 115,
+          "Text": "on",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 117,
+          "Text": "a",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 119,
+          "Text": "great",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 121,
+          "Text": "battle",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 123,
+          "Text": "field",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 125,
+          "Text": "of",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 127,
+          "Text": "that",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 129,
+          "Text": "war",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 130,
+          "Text": ". ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 131,
+          "Text": "We",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 133,
+          "Text": "have",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 135,
+          "Text": "come",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 137,
+          "Text": "to",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 139,
+          "Text": "dedicate",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 141,
+          "Text": "a",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 143,
+          "Text": "portion",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 145,
+          "Text": "of",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 147,
+          "Text": "it",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 148,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 149,
+          "Text": "as",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 151,
+          "Text": "a",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 153,
+          "Text": "final",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 155,
+          "Text": "resting",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 157,
+          "Text": "place",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 159,
+          "Text": "for",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 161,
+          "Text": "those",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 163,
+          "Text": "who",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 165,
+          "Text": "died",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 167,
+          "Text": "here",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 168,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 169,
+          "Text": "that",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 171,
+          "Text": "the",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 173,
+          "Text": "nation",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 175,
+          "Text": "might",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 177,
+          "Text": "live",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 178,
+          "Text": ". ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 179,
+          "Text": "This",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 181,
+          "Text": "we",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 183,
+          "Text": "may",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 184,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 185,
+          "Text": "in",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 187,
+          "Text": "all",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 189,
+          "Text": "propriety",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 191,
+          "Text": "do",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 192,
+          "Text": ". ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 193,
+          "Text": "But",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 194,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 195,
+          "Text": "in",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 197,
+          "Text": "a",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 199,
+          "Text": "larger",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 201,
+          "Text": "sense",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 202,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 203,
+          "Text": "we",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 205,
+          "Text": "can",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 207,
+          "Text": "not",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 209,
+          "Text": "dedicate",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 210,
+          "Text": " -- ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 211,
+          "Text": "we",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 213,
+          "Text": "can",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 215,
+          "Text": "not",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 217,
+          "Text": "consecrate",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 218,
+          "Text": " -- ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 219,
+          "Text": "we",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 221,
+          "Text": "can",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 223,
+          "Text": "not",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 225,
+          "Text": "hallow",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 226,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 227,
+          "Text": "this",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 229,
+          "Text": "ground",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 230,
+          "Text": "-- ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 231,
+          "Text": "The",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 233,
+          "Text": "brave",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 235,
+          "Text": "men",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 236,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 237,
+          "Text": "living",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 239,
+          "Text": "and",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 241,
+          "Text": "dead",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 242,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 243,
+          "Text": "who",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 245,
+          "Text": "struggled",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 247,
+          "Text": "here",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 248,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 249,
+          "Text": "have",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 251,
+          "Text": "hallowed",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 253,
+          "Text": "it",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 254,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 255,
+          "Text": "far",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 257,
+          "Text": "above",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 259,
+          "Text": "our",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 261,
+          "Text": "poor",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 263,
+          "Text": "power",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 265,
+          "Text": "to",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 267,
+          "Text": "add",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 269,
+          "Text": "or",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 271,
+          "Text": "detract",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 272,
+          "Text": ". ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 273,
+          "Text": "The",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 275,
+          "Text": "world",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 277,
+          "Text": "will",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 279,
+          "Text": "little",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 281,
+          "Text": "note",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 282,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 283,
+          "Text": "nor",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 285,
+          "Text": "long",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 287,
+          "Text": "remember",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 289,
+          "Text": "what",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 291,
+          "Text": "we",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 293,
+          "Text": "say",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 295,
+          "Text": "here",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 296,
+          "Text": "; ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 297,
+          "Text": "while",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 299,
+          "Text": "it",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 301,
+          "Text": "can",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 303,
+          "Text": "never",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 305,
+          "Text": "forget",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 307,
+          "Text": "what",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 309,
+          "Text": "they",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 311,
+          "Text": "did",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 313,
+          "Text": "here./n/n",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 315,
+          "Text": "It",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 317,
+          "Text": "is",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 319,
+          "Text": "rather",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 321,
+          "Text": "for",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 323,
+          "Text": "us",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 324,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 325,
+          "Text": "the",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 327,
+          "Text": "living",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 328,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 329,
+          "Text": "to",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 331,
+          "Text": "stand",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 333,
+          "Text": "here",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 334,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 335,
+          "Text": "we",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 337,
+          "Text": "here",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 339,
+          "Text": "be",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 341,
+          "Text": "dedica-ted",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 343,
+          "Text": "to",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 345,
+          "Text": "the",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 347,
+          "Text": "great",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 349,
+          "Text": "task",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 351,
+          "Text": "remaining",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 353,
+          "Text": "before",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 355,
+          "Text": "us",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 356,
+          "Text": " -- ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 357,
+          "Text": "that",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 358,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 359,
+          "Text": "from",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 361,
+          "Text": "these",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 363,
+          "Text": "honored",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 365,
+          "Text": "dead",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 367,
+          "Text": "we",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 369,
+          "Text": "take",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 371,
+          "Text": "increased",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 373,
+          "Text": "devotion",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 375,
+          "Text": "to",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 377,
+          "Text": "that",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 379,
+          "Text": "cause",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 381,
+          "Text": "for",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 383,
+          "Text": "which",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 385,
+          "Text": "they",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 387,
+          "Text": "here",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 388,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 389,
+          "Text": "gave",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 391,
+          "Text": "the",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 393,
+          "Text": "last",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 395,
+          "Text": "full",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 397,
+          "Text": "measure",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 399,
+          "Text": "of",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 401,
+          "Text": "devotion",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 402,
+          "Text": " -- ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 403,
+          "Text": "that",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 405,
+          "Text": "we",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 407,
+          "Text": "here",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 409,
+          "Text": "highly",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 411,
+          "Text": "resolve",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 413,
+          "Text": "these",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 415,
+          "Text": "dead",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 417,
+          "Text": "shall",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 419,
+          "Text": "not",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 421,
+          "Text": "have",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 423,
+          "Text": "died",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 425,
+          "Text": "in",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 427,
+          "Text": "vain",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 428,
+          "Text": "; ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 429,
+          "Text": "that",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 431,
+          "Text": "the",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 433,
+          "Text": "nation",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 434,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 435,
+          "Text": "shall",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 437,
+          "Text": "have",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 439,
+          "Text": "a",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 441,
+          "Text": "new",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 443,
+          "Text": "birth",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 445,
+          "Text": "of",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 447,
+          "Text": "freedom",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 448,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 449,
+          "Text": "and",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 451,
+          "Text": "that",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 453,
+          "Text": "government",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 455,
+          "Text": "of",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 457,
+          "Text": "the",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 459,
+          "Text": "people",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 461,
+          "Text": "by",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 463,
+          "Text": "the",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 465,
+          "Text": "people",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 467,
+          "Text": "for",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 469,
+          "Text": "the",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 471,
+          "Text": "people",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 472,
+          "Text": ", ",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 473,
+          "Text": "shall",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        },
+        {
+          "Id": 475,
+          "Text": "not",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 477,
+          "Text": "perish",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 479,
+          "Text": "from",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 481,
+          "Text": "the",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 483,
+          "Text": "earth",
+          "TextType": "Word",
+          "TextView": "FullText",
+          "HasSpaceBefore": true
+        },
+        {
+          "Id": 484,
+          "Text": ".",
+          "TextType": "Punctuation",
+          "TextView": "FullText",
+          "HasSpaceBefore": false
+        }
+      ]
+    }
+  ]

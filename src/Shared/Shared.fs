@@ -1,17 +1,23 @@
 namespace Shared
 open System
 
+[<CLIMutable>]
+type TokenResult = { Token : string }
 type TextType = | Word | Punctuation | Number
 type TextView = | FullText | Letters of int | NoText 
 type TextPart = { Id : int; Text : string; TextType : TextType; TextView : TextView; HasSpaceBefore : bool; }
-type MemorizationEntry = { Id : Guid; Title : string; Text : string; TextParts : TextPart list; HintLevel : int option; }
+type MemorizationEntryDisplay = { Id : Guid; Title : string; Text : string; TextParts : TextPart list; HintLevel : int option; }
+type MemorizationEntry = { Id : Guid; Title : string; Text : string; }
 type EditorValues = { EntryId : Guid option; Title : string; Text : string; }
-type GoogleUser = { Token : string; Id : string; Name : string; Email : string; }
+type GoogleUser = { Token : string; Id : string; Name : string; Email : string; MemoriaToken : string option }
 type AppUser =
   | GoogleUser of GoogleUser
   | SampleUser
-type Model = { User : AppUser option; Token : string option; Entries : MemorizationEntry list; Editor : EditorValues option; CurrentEntry : Guid option; } 
+type UserRole = | Admin
+type Model = { User : AppUser option; Entries : MemorizationEntryDisplay list; Editor : EditorValues option; CurrentEntry : Guid option; } 
 type TextViewRequest = { Id : int; TextView : TextView; }
+type GoogleLoginRequest = { IdToken : string }
+type StorageUser = { EmailAddress : string; Role : UserRole option; Entries : MemorizationEntry list; }
 
 type Msg =
   | AddEntry
@@ -28,6 +34,12 @@ type Msg =
   | SignedIn of AppUser
   | SignedOut
   | AuthDisconnected
+  | SaveEntries
+  | SavedEntries
+  | EntryAddedToDatabase
+  | StorageFailure of exn
+  | EntriesLoaded of MemorizationEntry list
+  | TokenReceived of TokenResult
 
 module Helpers =
   open System.Text.RegularExpressions
@@ -64,9 +76,17 @@ module Helpers =
     
   let update (msg : Msg) (model : Model) : Model * Msg list =
     match msg with
+    | EntryAddedToDatabase ->
+      model, []  
+    | TokenReceived t ->
+      match model.User with
+      | Some (GoogleUser g) ->
+        { model with User = Some (GoogleUser { g with MemoriaToken = Some t.Token }) }, []
+      | _ -> 
+        model, []
     | AuthDisconnected
     | SignedOut ->
-      { model with User = None }, []
+      { model with User = None; }, []
     | SignedIn u ->
       { model with User = Some u; }, []
     | SelectEntry guid ->
@@ -150,3 +170,10 @@ module Helpers =
       { model with Editor = editor; }, []
     | ViewList ->
       { model with Editor = None; CurrentEntry = None; }, []
+    | EntriesLoaded e ->
+      let newEntries = e |> List.filter (fun x -> model.Entries |> List.exists (fun y -> y.Id = x.Id) |> not) |> List.map (fun x -> { Id = x.Id; Title = x.Title; Text = x.Text; TextParts = getTextParts x.Text; HintLevel = None; })
+      { model with Entries = model.Entries |> List.append newEntries; }, []
+    | SaveEntries
+    | SavedEntries
+    | StorageFailure _ ->
+      model, []

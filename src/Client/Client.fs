@@ -17,13 +17,40 @@ open Shared.Helpers
 
 let defaultText = """Four score and seven years ago our fathers brought forth, upon this continent, a new nation, conceived in liberty, and dedicated to the proposition that "all men are created equal"/n/n Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived, and so dedicated, can long endure. We are met on a great battle field of that war. We have come to dedicate a portion of it, as a final resting place for those who died here, that the nation might live. This we may, in all propriety do. But, in a larger sense, we can not dedicate -- we can not consecrate -- we can not hallow, this ground-- The brave men, living and dead, who struggled here, have hallowed it, far above our poor power to add or detract. The world will little note, nor long remember what we say here; while it can never forget what they did here./n/n It is rather for us, the living, to stand here, we here be dedica-ted to the great task remaining before us -- that, from these honored dead we take increased devotion to that cause for which they here, gave the last full measure of devotion -- that we here highly resolve these dead shall not have died in vain; that the nation, shall have a new birth of freedom, and that government of the people by the people for the people, shall not perish from the earth."""
 let defaultEntry = 
-    { MemorizationEntry.Id = Guid.NewGuid()
+    { MemorizationEntryDisplay.Id = Guid.NewGuid()
       Title = "Gettysburg address"
       Text = defaultText
       TextParts = Helpers.getTextParts defaultText
       HintLevel = None }
 
 let gapiImported: obj = Fable.Core.JsInterop.importAll "./platform.js"
+
+let loadBrowserEntries () : MemorizationEntryDisplay list =
+  let entryListDecoder = Decode.Auto.generateDecoder<MemorizationEntryDisplay list>()
+  match WebStorage.load entryListDecoder "entryList" with
+  | Ok entries -> entries
+  | Error _ -> [ defaultEntry ]
+
+let getToken (tokenRequest : GoogleLoginRequest) = 
+  JS.console.log "Get token run"
+  let r = {| IdToken = tokenRequest.IdToken |}
+  Fetch.post<_, TokenResult> ("api/token", data = r)
+
+let addEntry (token, request : MemorizationEntry) =
+  let authenticatedJsonHeaders =
+      [ HttpRequestHeaders.Authorization (sprintf "Bearer %s" token)
+        HttpRequestHeaders.ContentType "application/json" ]
+  let r = request
+  Fetch.post<_, MemorizationEntry> ("api/add", data = r, headers = authenticatedJsonHeaders)
+
+let sampleEntries () = Fetch.fetchAs<unit, MemorizationEntry list> "/sample.json"
+let googleEntries (g : GoogleUser) = 
+  let authenticatedJsonHeaders =
+      g.MemoriaToken 
+      |> Option.map (sprintf "Bearer %s" >> HttpRequestHeaders.Authorization) 
+      |> Option.toList 
+      |> List.append [ HttpRequestHeaders.ContentType "application/json" ]
+  Fetch.fetchAs<unit, MemorizationEntry list>("api/init",headers = authenticatedJsonHeaders)
 
 module Auth =
   open Fable.Core.JsInterop
@@ -43,7 +70,8 @@ module Auth =
         { Token = token.ToString()
           Id = profileId.ToString()
           Name = profileName.ToString()
-          Email = profileEmail.ToString() }
+          Email = profileEmail.ToString()
+          MemoriaToken = None }
         |> AppUser.GoogleUser
       dispatch (SignedIn user)
 
@@ -87,13 +115,39 @@ module Auth =
     auth2?signOut()?``then``(signOutFn)
 
 let init () : Model * Cmd<Msg> =
-  let model = { User = None; Token = None; Editor = None; Entries = [ defaultEntry ]; CurrentEntry = Some defaultEntry.Id; }
+  let entries = loadBrowserEntries ()
+  let model = { User = None; Editor = None; Entries = entries; CurrentEntry = entries |> List.tryHead |> Option.map (fun x -> x.Id); }
   model, Cmd.none
   
 let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
   let newModel, msgs = Helpers.update msg model
   let fetchCmd =
     match msg with
+    | TokenReceived t ->
+      match model.User with
+      | Some (GoogleUser g) ->
+        Cmd.OfPromise.perform googleEntries { g with MemoriaToken = Some t.Token } EntriesLoaded |> Some
+      | _ -> None
+    | SaveEntries -> 
+      let browserSave = Cmd.OfFunc.either (WebStorage.save "entryList") model.Entries (fun _ -> SavedEntries) StorageFailure |> Some
+      let dbSave =
+        match model.User with
+        | Some (GoogleUser g) ->
+          let entry = model.Entries |> List.map (fun x -> { Id = x.Id; Title = x.Title; Text = x.Text }) |> List.head
+          Cmd.OfPromise.perform addEntry (g.MemoriaToken.Value, entry) (fun _ -> EntryAddedToDatabase) |> Some
+        | _ -> None
+      let cmds =
+        [ browserSave
+          dbSave ]
+        |> List.choose id
+      Cmd.batch cmds |> Some
+      
+    | SignedIn u ->
+      match u with
+      | AppUser.SampleUser ->
+        Cmd.OfPromise.perform sampleEntries () EntriesLoaded |> Some
+      | AppUser.GoogleUser g ->
+        Cmd.OfPromise.perform getToken { IdToken = g.Token } TokenReceived |> Some
     | _ -> None
   let cmd =
     match msgs with
@@ -380,7 +434,8 @@ let view (model : Model) (dispatch : Msg -> unit) =
       | None -> ()
       | Some user ->
         Section.section [ ] 
-          [ viewContent model dispatch ] ]
+          [ //iconButton "Save entries" Fa.Solid.Save (fun _ -> dispatch SaveEntries)
+            viewContent model dispatch ] ]
 
 #if DEBUG
 open Elmish.Debug
