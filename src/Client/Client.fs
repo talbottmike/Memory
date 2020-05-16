@@ -23,17 +23,22 @@ let loadBrowserEntries () : MemorizationEntryDisplay list =
   | Ok entries -> entries
   | Error _ -> [ ]
 
+let baseUrl =
+  if Browser.Dom.window.location.host.ToUpper().Contains("MEMORIAMASTERED")
+  then "https://memoria.azurewebsites.net/"
+  else Browser.Dom.window.location.href
+
 let getToken (tokenRequest : GoogleLoginRequest) = 
   JS.console.log "Get token run"
   let r = {| IdToken = tokenRequest.IdToken |}
-  Fetch.post<_, TokenResult> ("api/token", data = r)
+  Fetch.post<_, TokenResult> (baseUrl + "api/token", data = r)
 
 let addEntry (token, request : MemorizationEntry) =
   let authenticatedJsonHeaders =
       [ HttpRequestHeaders.Authorization (sprintf "Bearer %s" token)
         HttpRequestHeaders.ContentType "application/json" ]
   let r = request
-  Fetch.post<_, MemorizationEntry> ("api/add", data = r, headers = authenticatedJsonHeaders)
+  Fetch.post<_, MemorizationEntry> (baseUrl + "api/add", data = r, headers = authenticatedJsonHeaders)
 
 let sampleEntries () = Fetch.fetchAs<unit, MemorizationEntry list> "/sample.json"
 let googleEntries (g : GoogleUser) = 
@@ -42,7 +47,7 @@ let googleEntries (g : GoogleUser) =
       |> Option.map (sprintf "Bearer %s" >> HttpRequestHeaders.Authorization) 
       |> Option.toList 
       |> List.append [ HttpRequestHeaders.ContentType "application/json" ]
-  Fetch.fetchAs<unit, MemorizationEntry list>("api/init",headers = authenticatedJsonHeaders)
+  Fetch.fetchAs<unit, MemorizationEntry list>(baseUrl + "api/init",headers = authenticatedJsonHeaders)
 
 module Auth =
   open Fable.Core.JsInterop
