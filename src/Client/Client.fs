@@ -286,7 +286,7 @@ let viewTextPart (x : TextPart) (dispatch : Msg -> unit) =
     | TextType.Punctuation -> ignore
     | TextType.Word -> (fun _ -> dispatch (ToggleTextView { Id = x.Id; TextView = Helpers.toggleTextView x }))
 
-  Text.span [ Props [ OnClick g; Style [ CSSProp.FontFamily "monospace"; ] :> IHTMLProp ] ] [ str (if x.HasSpaceBefore then " " + t else t + " ") ]
+  Text.span [ Props [ OnClick g; Style [ CSSProp.FontFamily "monospace"; ] :> IHTMLProp ] ] [ str (if x.HasSpaceBefore then " " + t else t) ]
 
 let iconButton txt (fn : _ -> unit) icon =
   Button.button 
