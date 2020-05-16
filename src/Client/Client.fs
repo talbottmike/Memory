@@ -399,14 +399,21 @@ let viewContent (model: Model) dispatch =
       //                 command = (fun () -> dispatch AddEntry))]
       //         )
       | _ ->
-        Columns.columns [ ]
+        Columns.columns [ Columns.IsMobile ]
           [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ Icon.icon [ ] [ bookshelfIcon [ ] ]; ]
-            Column.column [ ] [ span [ ] [ str "Entries" ] ] ]
+            Column.column [ ] [ Text.span [ Modifiers [ Modifier.TextWeight TextWeight.Bold ] ] [ str "Entries" ] ] ]
         for x in model.Entries do
-          Columns.columns [ ] 
+          // Non mobile view
+          Columns.columns [ Columns.Modifiers [ Modifier.IsHidden (Screen.Mobile, true) ] ] 
             [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ iconButton "" (fun _ -> dispatch (SelectEntry x.Id)) glassesIcon ]
               Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ iconButton "" (fun _ -> dispatch (UpdateEntry x.Id)) pencilIcon ]
               Column.column [ ] [ str x.Title ] ]
+          // Mobile view
+          Columns.columns [ Columns.Modifiers [ Modifier.IsHidden (Screen.Tablet, true) ]; Columns.IsMobile ]
+            [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ iconButton "" (fun _ -> dispatch (SelectEntry x.Id)) glassesIcon ]
+              Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ iconButton "" (fun _ -> dispatch (UpdateEntry x.Id)) pencilIcon ] ]
+          Columns.columns [ Columns.Modifiers [ Modifier.IsHidden (Screen.Tablet, true) ] ] 
+            [ Column.column [ ] [ str x.Title ] ]
         // Only subscribers can add more than one entry
         Columns.columns [ ] [ Column.column [ ] [ iconButton "" (fun _ -> dispatch AddEntry) bookPlusIcon ] |> subscriberOnly model.User ]
   ]
