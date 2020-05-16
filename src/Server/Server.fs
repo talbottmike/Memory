@@ -188,7 +188,9 @@ let handlePostToken =
     task {
       let! request = ctx.BindJsonAsync<GoogleLoginRequest>()
       // authenticate user
-      let! p = GoogleJsonWebSignature.ValidateAsync(request.IdToken, GoogleJsonWebSignature.ValidationSettings(Audience = [ clientId ]))
+      let validationSettings = GoogleJsonWebSignature.ValidationSettings(Audience = [ clientId; "memoria.azurewebsites.net"; "memoriamastered.com"; ])
+      let! p = GoogleJsonWebSignature.ValidateAsync(request.IdToken, validationSettings)
+      printfn "%A" p.AudienceAsList
       let! u = Data.getOrAddUser p.Email
       let tokenResult = { TokenResult.Token = generateToken u.id; Role = u.Model.Role }
       return! json tokenResult next ctx
@@ -228,6 +230,7 @@ let configureCors (builder : Microsoft.AspNetCore.Cors.Infrastructure.CorsPolicy
   builder.WithOrigins("https://login.microsoftonline.com").AllowAnyMethod().AllowAnyHeader() |> ignore
   builder.WithOrigins("https://accounts.google.com").AllowAnyMethod().AllowAnyHeader() |> ignore
   builder.WithOrigins("https://memoriamastered.com").AllowAnyMethod().AllowAnyHeader() |> ignore
+  builder.WithOrigins("https://memoria.azurewebsites.net").AllowAnyMethod().AllowAnyHeader() |> ignore
 
 // let hostConfig (webHost:IWebHostBuilder) =
 //   webHost.ConfigureAppConfiguration(fun ctx builder -> builder.AddJsonFile(sprintf "appSettings.%s.json" ctx.HostingEnvironment.EnvironmentName) |> ignore )
