@@ -144,15 +144,17 @@ module Data =
       return result
     }
 
-  let getEntries () =
+  let getEntries (emailAddress : string) =
     task {
-      let queryString = sprintf "SELECT * FROM a"
+      let userId = emailAddress.ToLower()
+      let partition = sprintf "/%s/%s/%s" appEnvironment "Users" (emailAddress.ToLower())
       let! result =
         CosmosClientOptions(Serializer = CustomCosmosSerializer())
         |> Cosmos.fromConnectionStringWithOptions cosmosConnectionString
         |> Cosmos.database databaseName
         |> Cosmos.container containerName
-        |> Cosmos.query queryString
+        |> Cosmos.query "SELECT * FROM a WHERE a.id = @userId and a.partition = @partition"
+        |> Cosmos.parameters [ ("@userId", box userId); ("@partition", box partition) ]
         |> Cosmos.execAsync<UserStorageModel>
         |> AsyncSeq.map (fun x -> x.Model.Entries)
         |> AsyncSeq.toListAsync
@@ -202,7 +204,8 @@ let securedRouter =
     //get "/" handleGetSecured
     get "/init" (fun next ctx ->
       task {
-        let! entries = Data.getEntries ()
+        let userId = getSecuredUserId ctx
+        let! entries = Data.getEntries userId
         return! json entries next ctx
       }
     )

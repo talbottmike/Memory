@@ -29,7 +29,7 @@ let baseUrl =
   else Browser.Dom.window.location.href
 
 let getToken (tokenRequest : GoogleLoginRequest) = 
-  JS.console.log "Get token run"
+  //JS.console.log "Get token run"
   let r = {| IdToken = tokenRequest.IdToken |}
   Fetch.post<_, TokenResult> (baseUrl + "api/token", data = r)
 
@@ -53,7 +53,7 @@ module Auth =
   open Fable.Core.JsInterop
 
   let init dispatch = 
-    Fable.Core.JS.console.log("init called")
+    // JS.console.log("init called")
     let onSignIn g = 
       // JS.console.log("on sign in, granted scopes: ")
       // JS.console.log(g?getGrantedScopes())
@@ -233,6 +233,7 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
         match model.User with
         | Some u ->
           match u.Role, u.MemoriaToken with
+          | Some Subscriber, Some t
           | Some Admin, Some t ->
             let entry = model.Entries |> List.map (fun x -> { Id = x.Id; Title = x.Title; Text = x.Text }) |> List.head
             Cmd.OfPromise.perform addEntry (t, entry) (fun _ -> EntryAddedToDatabase) |> Some
@@ -296,6 +297,11 @@ let iconButton txt (fn : _ -> unit) icon =
 let adminOnly (appUserOption : AppUser option) element =
   match appUserOption with
   | Some u when u.Role = Some Admin -> element
+  | _ -> div [ ] [ ]
+
+let subscriberOnly (appUserOption : AppUser option) element =
+  match appUserOption with
+  | Some u when u.Role = Some Admin || u.Role = Some Subscriber -> element
   | _ -> div [ ] [ ]
 
 let viewContent (model: Model) dispatch =
@@ -401,7 +407,8 @@ let viewContent (model: Model) dispatch =
             [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ iconButton "" (fun _ -> dispatch (SelectEntry x.Id)) glassesIcon ]
               Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ iconButton "" (fun _ -> dispatch (UpdateEntry x.Id)) pencilIcon ]
               Column.column [ ] [ str x.Title ] ]
-        Columns.columns [ ] [ Column.column [ ] [ iconButton "" (fun _ -> dispatch AddEntry) bookPlusIcon ] |> adminOnly model.User ]
+        // Only subscribers can add more than one entry
+        Columns.columns [ ] [ Column.column [ ] [ iconButton "" (fun _ -> dispatch AddEntry) bookPlusIcon ] |> subscriberOnly model.User ]
   ]
 
 let view (model : Model) (dispatch : Msg -> unit) =

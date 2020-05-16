@@ -8,7 +8,7 @@ type MemorizationEntryDisplay = { Id : Guid; Title : string; Text : string; Text
 type MemorizationEntry = { Id : Guid; Title : string; Text : string; }
 type EditorValues = { EntryId : Guid option; Title : string; Text : string; }
 type GoogleUser = { Token : string; Id : string; Name : string; Email : string; MemoriaToken : string option }
-type UserRole = | Admin
+type UserRole = | Admin | Subscriber
 type TokenResult = { Token : string; Role : UserRole option; }
 type UserProvider =
   | Google of GoogleUser
