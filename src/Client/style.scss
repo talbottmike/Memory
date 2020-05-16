@@ -1,12 +1,5 @@
 @charset "utf-8";
 
-// FontAwesome
-$fa_font_path: "~@fortawesome/fontawesome-free/webfonts";
-@import '~@fortawesome/fontawesome-free/scss/fontawesome.scss';
-@import '~@fortawesome/fontawesome-free/scss/regular.scss';
-@import '~@fortawesome/fontawesome-free/scss/solid.scss';
-@import '~@fortawesome/fontawesome-free/scss/brands.scss';
-
 // OpenSans
 $FontPathOpenSans: "~open-sans-fonts/open-sans";
 @import '~open-sans-fonts/open-sans';
@@ -36,4 +29,5 @@ $primary-invert: findColorInvert($primary);
 // Bulma
 @import "~bulma/bulma";
 @import '~bulma-slider/dist/css/bulma-slider.sass';
+@import "~bulma-tooltip/src/sass/index.sass";
 

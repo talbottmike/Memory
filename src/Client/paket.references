@@ -6,7 +6,7 @@ group Client
     Fable.Elmish.HMR
     Thoth.Fetch
     Fulma
-    Fable.FontAwesome.Free
+    Fulma.Extensions.Wikiki.Tooltip
     Fable.Browser.Navigator
     Fable.Browser.Worker
     Fable.Browser.Dom

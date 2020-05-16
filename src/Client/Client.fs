@@ -7,9 +7,9 @@ open Fable.React.Props
 open Fetch.Types
 open Thoth.Fetch
 open Fulma
+open Fulma.Extensions.Wikiki
 open Thoth.Json
 open System
-open Fable.FontAwesome
 open Fable.Core
 
 open Shared
@@ -286,7 +286,7 @@ let viewTextPart (x : TextPart) (dispatch : Msg -> unit) =
     | TextType.Punctuation -> ignore
     | TextType.Word -> (fun _ -> dispatch (ToggleTextView { Id = x.Id; TextView = Helpers.toggleTextView x }))
 
-  Button.span [ Button.OnClick g ] [ str (if x.HasSpaceBefore then " " + t else t) ]
+  Text.span [ Props [ OnClick g; Style [ CSSProp.FontFamily "monospace"; ] :> IHTMLProp ] ] [ str (if x.HasSpaceBefore then " " + t else t + " ") ]
 
 let iconButton txt (fn : _ -> unit) icon =
   Button.button 
@@ -349,13 +349,28 @@ let viewContent (model: Model) dispatch =
             [ iconButton "" (fun _ -> dispatch ViewList ) arrowLeftIcon ] ]
       
       Columns.columns [ ] [ Column.column [ ] [ str e.Title ] ]
-      Columns.columns [ ] [ Column.column [ ] 
-        [ Button.list [ ]
-            [ for x in e.TextParts do
-                viewTextPart x dispatch ] ] ]
-      Columns.columns [ ] [ Column.column [ ] [ Button.button [ Button.OnClick (fun _ -> dispatch (BulkToggleTextView (TextView.NoText))) ] [ str "Blanks" ] ] ]
-      Columns.columns [ ] [ Column.column [ ] [ Button.button [ Button.OnClick (fun _ -> dispatch (BulkToggleTextView (TextView.Letters 1))) ] [ str "First letter" ] ] ]
-      Columns.columns [ ] [ Column.column [ ] [ Button.button [ Button.OnClick (fun _ -> dispatch (BulkToggleTextView (TextView.FullText))) ] [ str "Full text" ] ] ]
+      Columns.columns [ Columns.Props [ Tooltip.dataTooltip "Tap text to cycle through visibility" ]; Columns.CustomClass (Tooltip.ClassName+ " " + Tooltip.IsTooltipTop) ] [ Column.column [ ] 
+        [ for x in e.TextParts do
+                viewTextPart x dispatch ] ]
+      Columns.columns [ ] [ 
+        Column.column [ ] [ 
+          Button.button 
+            [ Button.OnClick (fun _ -> dispatch (BulkToggleTextView (TextView.NoText)))
+              Button.Props [ Tooltip.dataTooltip "Hide all text" ]
+              Button.CustomClass (Tooltip.ClassName+ " " + Tooltip.IsTooltipTop) ] 
+            [ str "Show blanks" ] ]
+        Column.column [ ] [ 
+          Button.button 
+            [ Button.OnClick (fun _ -> dispatch (BulkToggleTextView (TextView.Letters 1)))
+              Button.Props [ Tooltip.dataTooltip "Hide all but the first letter of each word" ]
+              Button.CustomClass (Tooltip.ClassName+ " " + Tooltip.IsMultiline) ] 
+            [ str "Show first letter" ] ]
+        Column.column [ ] [ 
+          Button.button 
+            [ Button.OnClick (fun _ -> dispatch (BulkToggleTextView (TextView.FullText)))
+              Button.Props [ Tooltip.dataTooltip "Show all text" ]
+              Button.CustomClass (Tooltip.ClassName+ " " + Tooltip.IsTooltipTop) ] 
+            [ str "Show full text" ] ] ]
       //           //match e.HintLevel with
       //           //| None ->
       //           //  yield View.Button(

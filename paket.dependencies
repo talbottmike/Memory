@@ -28,7 +28,7 @@ group Client
     nuget Thoth.Fetch
     nuget Fable.React ~> 5
     nuget Fulma ~> 2
-    nuget Fable.FontAwesome.Free ~> 2
+    nuget Fulma.Extensions.Wikiki.Tooltip
     nuget Fable.Browser.Navigator
     nuget Fable.Browser.Worker
     nuget Fable.Browser.Dom
