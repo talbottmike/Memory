@@ -15,21 +15,13 @@ open Fable.Core
 open Shared
 open Shared.Helpers
 
-let defaultText = """Four score and seven years ago our fathers brought forth, upon this continent, a new nation, conceived in liberty, and dedicated to the proposition that "all men are created equal"/n/n Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived, and so dedicated, can long endure. We are met on a great battle field of that war. We have come to dedicate a portion of it, as a final resting place for those who died here, that the nation might live. This we may, in all propriety do. But, in a larger sense, we can not dedicate -- we can not consecrate -- we can not hallow, this ground-- The brave men, living and dead, who struggled here, have hallowed it, far above our poor power to add or detract. The world will little note, nor long remember what we say here; while it can never forget what they did here./n/n It is rather for us, the living, to stand here, we here be dedica-ted to the great task remaining before us -- that, from these honored dead we take increased devotion to that cause for which they here, gave the last full measure of devotion -- that we here highly resolve these dead shall not have died in vain; that the nation, shall have a new birth of freedom, and that government of the people by the people for the people, shall not perish from the earth."""
-let defaultEntry = 
-    { MemorizationEntryDisplay.Id = Guid.NewGuid()
-      Title = "Gettysburg address"
-      Text = defaultText
-      TextParts = Helpers.getTextParts defaultText
-      HintLevel = None }
-
 let gapiImported: obj = Fable.Core.JsInterop.importAll "./platform.js"
 
 let loadBrowserEntries () : MemorizationEntryDisplay list =
   let entryListDecoder = Decode.Auto.generateDecoder<MemorizationEntryDisplay list>()
   match WebStorage.load entryListDecoder "entryList" with
   | Ok entries -> entries
-  | Error _ -> [ defaultEntry ]
+  | Error _ -> [ ]
 
 let getToken (tokenRequest : GoogleLoginRequest) = 
   JS.console.log "Get token run"
@@ -72,7 +64,7 @@ module Auth =
           Name = profileName.ToString()
           Email = profileEmail.ToString()
           MemoriaToken = None }
-        |> AppUser.GoogleUser
+        |> Google
       dispatch (SignedIn user)
 
     let configureAuth () =
@@ -103,10 +95,10 @@ module Auth =
     if ((bool) isUserSignedIn)
     then
       auth2?disconnect()
-      dispatch AuthDisconnected
     else 
       //JS.console.log("Not signed in, cannot disconnect")
       ()
+    dispatch AuthDisconnected
 
   let signOut dispatch =
     let auth2 = Browser.Dom.window?gapi?auth2?getAuthInstance()
@@ -116,44 +108,138 @@ module Auth =
 
 let init () : Model * Cmd<Msg> =
   let entries = loadBrowserEntries ()
-  let model = { User = None; Editor = None; Entries = entries; CurrentEntry = entries |> List.tryHead |> Option.map (fun x -> x.Id); }
+  let model = { User = None; Editor = None; Entries = entries; CurrentEntry = None; }
   model, Cmd.none
   
 let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
-  let newModel, msgs = Helpers.update msg model
-  let fetchCmd =
-    match msg with
-    | TokenReceived t ->
-      match model.User with
-      | Some (GoogleUser g) ->
-        Cmd.OfPromise.perform googleEntries { g with MemoriaToken = Some t.Token } EntriesLoaded |> Some
-      | _ -> None
-    | SaveEntries -> 
-      let browserSave = Cmd.OfFunc.either (WebStorage.save "entryList") model.Entries (fun _ -> SavedEntries) StorageFailure |> Some
+  match msg with
+  | DemoteUser ->
+    model.User
+    |> Option.map (fun x -> { model with User = Some { x with Role = None; } } )
+    |> Option.defaultValue model, Cmd.none
+  | EntryAddedToDatabase ->
+    model, Cmd.none
+  | TokenReceived t ->
+    match model.User with
+    | Some u ->
+      let cmd =   
+        match u.Provider with
+        | Google g -> Cmd.OfPromise.perform googleEntries { g with MemoriaToken = Some t.Token } EntriesLoaded
+        | _ -> Cmd.none
+      { model with User = Some { u with MemoriaToken = Some t.Token; Role = t.Role; } }, cmd
+    | _ ->  model, Cmd.none
+  | AuthDisconnected
+  | SignedOut ->
+    { model with User = None; }, Cmd.none
+  | SignedIn p ->
+    let cmd =
+      match p with
+      | Sample -> Cmd.none
+      | Google g -> Cmd.OfPromise.perform getToken { IdToken = g.Token } TokenReceived
+    { model with User = Some { AppUser.Provider = p; MemoriaToken = None; Role = None; }; }, cmd
+  | SelectEntry guid ->
+    { model with CurrentEntry = Some guid; }, Cmd.none
+  | UpdateText t ->
+    let newEditor =
+      model.Editor
+      |> Option.map (fun e -> { e with Text = t })
+    { model with Editor = newEditor; }, Cmd.none
+  | UpdateTitle t ->
+    let newEditor =
+      model.Editor
+      |> Option.map (fun e -> { e with Title = t })
+    { model with Editor = newEditor; }, Cmd.none
+  | RemoveEntry guid ->
+    let newModel =
+      let newEntries = model.Entries |> List.filter (fun x -> guid <> x.Id)
+      { model with Editor = None; Entries = newEntries; CurrentEntry = None; }
+    newModel, Cmd.ofMsg SaveEntries
+  | HintLevelChanged hintLevel ->
+    let newModel =
+      match model.CurrentEntry with
+      | None -> model
+      | Some guid ->
+        let newEntries =
+          model.Entries |> List.map (fun x -> if guid = x.Id then { x with HintLevel = Some hintLevel; } else x)
+        { model with Entries = newEntries }
+    newModel, Cmd.none
+  | AddOrUpdateEntry ->
+    let newModel =
+      match model.Editor with
+      | None -> 
+        model
+      | Some e -> 
+        let newCurrentEntry, newEntries =
+          match e.EntryId with
+          | None -> 
+            match strOption e.Title, strOption e.Text with
+            | None, None -> None, model.Entries 
+            | _, _ -> 
+              let id = Guid.NewGuid()
+              let entries = { Id = id; Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; HintLevel = None; } :: model.Entries
+              (Some id, entries)
+          | Some guid -> 
+            match strOption e.Title, strOption e.Text with
+            | None, None -> 
+              let entries = model.Entries |> List.filter (fun x -> guid <> x.Id)
+              (None, entries)
+            | _, _ -> 
+              let entries = model.Entries |> List.map (fun x -> if guid = x.Id then { x with Title = e.Title; Text = e.Text; TextParts = getTextParts e.Text; } else x)
+              (Some guid, entries)
+        { model with Editor = None; Entries = newEntries; }
+    newModel, Cmd.ofMsg SaveEntries
+  | BulkToggleTextView textView ->
+    let newModel =
+      match model.CurrentEntry with
+      | None -> model
+      | Some guid ->
+        let newEntries =
+          let newTextParts (textParts : TextPart list) = textParts |> List.map (fun x -> if x.TextType = TextType.Word then { x with TextView = textView } else x)
+          model.Entries |> List.map (fun x -> if guid = x.Id then { x with TextParts = newTextParts x.TextParts; } else x)
+        { model with Entries = newEntries }
+    newModel, Cmd.none
+  | ToggleTextView request ->
+    let newModel =
+      match model.CurrentEntry with
+      | None -> model
+      | Some guid ->
+        let newEntries =
+          let newTextParts (textParts : TextPart list) = textParts |> List.map (fun x -> if x.Id = request.Id then { x with TextView = toggleTextView x } else x)
+          model.Entries |> List.map (fun x -> if guid = x.Id then { x with TextParts = newTextParts x.TextParts; } else x)
+        { model with Entries = newEntries }
+    newModel, Cmd.none
+  | AddEntry ->
+    { model with Editor = Some { EntryId = None; Text = ""; Title = ""; }}, Cmd.none
+  | UpdateEntry guid ->
+    let editor = 
+      model.Entries 
+      |> List.tryFind (fun x -> x.Id = guid)
+      |> Option.map (fun x -> { EntryId = Some x.Id; Text = x.Text; Title = x.Title; })
+    { model with Editor = editor; }, Cmd.none
+  | ViewList ->
+    { model with Editor = None; CurrentEntry = None; }, Cmd.none
+  | EntriesLoaded e ->
+    let newEntries = e |> List.filter (fun x -> model.Entries |> List.exists (fun y -> y.Id = x.Id) |> not) |> List.map (fun x -> { Id = x.Id; Title = x.Title; Text = x.Text; TextParts = getTextParts x.Text; HintLevel = None; })
+    { model with Entries = model.Entries |> List.append newEntries; }, Cmd.none
+  | SaveEntries -> 
+    let cmds =
+      let browserSave = Cmd.OfFunc.either (WebStorage.save "entryList") model.Entries (fun _ -> SavedEntries) StorageFailure
       let dbSave =
         match model.User with
-        | Some (GoogleUser g) ->
-          let entry = model.Entries |> List.map (fun x -> { Id = x.Id; Title = x.Title; Text = x.Text }) |> List.head
-          Cmd.OfPromise.perform addEntry (g.MemoriaToken.Value, entry) (fun _ -> EntryAddedToDatabase) |> Some
+        | Some u ->
+          match u.Role, u.MemoriaToken with
+          | Some Admin, Some t ->
+            let entry = model.Entries |> List.map (fun x -> { Id = x.Id; Title = x.Title; Text = x.Text }) |> List.head
+            Cmd.OfPromise.perform addEntry (t, entry) (fun _ -> EntryAddedToDatabase) |> Some
+          | _ -> None
         | _ -> None
-      let cmds =
-        [ browserSave
-          dbSave ]
-        |> List.choose id
-      Cmd.batch cmds |> Some
-      
-    | SignedIn u ->
-      match u with
-      | AppUser.SampleUser ->
-        Cmd.OfPromise.perform sampleEntries () EntriesLoaded |> Some
-      | AppUser.GoogleUser g ->
-        Cmd.OfPromise.perform getToken { IdToken = g.Token } TokenReceived |> Some
-    | _ -> None
-  let cmd =
-    match msgs with
-    | [] -> Cmd.none
-    | _ -> msgs |> List.map Cmd.ofMsg |> Cmd.batch
-  newModel, Cmd.batch ( cmd :: (fetchCmd |> Option.toList) )
+      [ Some browserSave
+        dbSave ]
+      |> List.choose id
+    model, Cmd.batch cmds
+  | SavedEntries
+  | StorageFailure _ ->
+    model, Cmd.none
 
 let button txt onClick =
     Button.button
@@ -196,13 +282,16 @@ let viewTextPart (x : TextPart) (dispatch : Msg -> unit) =
 
   Button.span [ Button.OnClick g ] [ str (if x.HasSpaceBefore then " " + t else t) ]
 
-let icon x = Icon.icon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.i [ x ] [ ] ]
-
-let iconButton txt icon (fn : _ -> unit) =
+let iconButton txt (fn : _ -> unit) icon =
   Button.button 
     [ Button.OnClick fn ]
-    [ Icon.icon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.i [ icon ] [ ] ]
-      span [] [ str txt ] ] 
+    [ Icon.icon [ ] [ icon [] ]
+      if String.IsNullOrWhiteSpace txt then () else span [] [ str txt ] ] 
+
+let adminOnly (appUserOption : AppUser option) element =
+  match appUserOption with
+  | Some u when u.Role = Some Admin -> element
+  | _ -> div [ ] [ ]
 
 let viewContent (model: Model) dispatch =
   div [ ] [
@@ -220,88 +309,42 @@ let viewContent (model: Model) dispatch =
     | Some e,_ ->
       Columns.columns [ ]
         [ Column.column [ ]
-            [ iconButton "Add or Update" Fa.Solid.ArrowLeft (fun _ -> dispatch AddOrUpdateEntry ) ] ]
+            [ iconButton "" (fun _ -> dispatch AddOrUpdateEntry ) arrowLeftIcon ] ]
       Columns.columns [ ]
         [ Column.column [ ]
             [ Field.div [ ]
                 [ Label.label [ ] [ str "Title" ]
-                  Control.div [ Control.HasIconLeft; ]
+                  Control.div [ ]
                     [ Input.text 
                         [ Input.Color IsPrimary
                           Input.Placeholder "Enter Title"
                           Input.ValueOrDefault e.Title
-                          //Input.Props [(onEnter JoinGame dispatch :> IHTMLProp); AutoFocus true; ]
-                          Input.OnChange (fun ev -> !!ev.target?value |> UpdateTitle |> dispatch) ]
-                      Icon.icon [ Icon.Size IsSmall; Icon.IsLeft ]
-                        [ Fa.i [ Fa.Solid.User ] [ ] ] ] ]
+                          Input.OnChange (fun ev -> !!ev.target?value |> UpdateTitle |> dispatch) ] ] ]
               Field.div [ ]
                 [ Label.label [ ] [ str "Memory text" ]
-                  Control.div [ Control.HasIconLeft; ]
-                    [ Input.text 
-                        [ Input.Color IsPrimary
-                          Input.Placeholder "Paste or enter text to memorize here"
-                          Input.ValueOrDefault e.Text
-                          //Input.Props [(onEnter JoinGame dispatch :> IHTMLProp); AutoFocus true; ]
-                          Input.OnChange (fun ev -> !!ev.target?value |> UpdateText |> dispatch) ]
-                      Icon.icon [ Icon.Size IsSmall; Icon.IsLeft ]
-                        [ Fa.i [ Fa.Solid.User ] [ ] ] ] ] ] ] 
-      //       View.StackLayout(
-      //         [ 
-      //           yield View.Label(
-      //             text = IconFont.ArrowLeft,
-      //             fontFamily = materialFont, 
-      //             fontSize = FontSize 40.,
-      //             horizontalOptions = LayoutOptions.Start,
-      //             gestureRecognizers = [ View.TapGestureRecognizer(command=(fun () -> dispatch AddOrUpdateEntry)) ])
-      //           yield View.Label(
-      //             text = "Title",
-      //             fontSize = FontSize 16.)
-      //           yield View.Entry(
-      //             text = e.Title, 
-      //             fontSize = FontSize 20.,
-      //             textChanged = (fun (textArgs : TextChangedEventArgs) -> UpdateTitle textArgs.NewTextValue |> dispatch),
-      //             placeholder = "Enter title"
-      //             )
-      //           yield View.Label(
-      //             text = "Memory text",
-      //             fontSize = FontSize 16.)
-      //           yield View.Editor(
-      //             text = e.Text, 
-      //             fontSize = FontSize 20.,
-      //             textChanged = (fun (textArgs : TextChangedEventArgs) -> UpdateText textArgs.NewTextValue |> dispatch),
-      //             placeholder = "Paste or enter text to memorize here",
-      //             autoSize = EditorAutoSizeOption.TextChanges
-      //           )
-      //           match e.EntryId with
-      //           | None -> ()
-      //           | Some id -> 
-      //             yield View.Button(
-      //               text = IconFont.BookMinus + " Delete",
-      //               fontFamily = materialFont, 
-      //               fontSize = FontSize 20.,
-      //               horizontalOptions = LayoutOptions.End,
-      //               command = (fun () -> dispatch (RemoveEntry id)))]
-      //       )
+                  Control.div [ ]
+                    [ Textarea.textarea
+                        [ Textarea.Color IsPrimary
+                          Textarea.Placeholder "Paste or enter text to memorize here"
+                          Textarea.ValueOrDefault e.Text
+                          Textarea.OnChange (fun ev -> !!ev.target?value |> UpdateText |> dispatch) ] [ ] ] ] ] ] 
+      match e.EntryId with
+      | None -> ()
+      | Some id ->
+        Columns.columns [ ] [ Column.column [ ] [ iconButton "Delete" (fun _ -> dispatch (RemoveEntry id) ) bookMinusIcon ] ]
     | None, Some e ->
       Columns.columns [ ]
         [ Column.column [ ]
-            [ iconButton "View list" Fa.Solid.ArrowLeft (fun _ -> dispatch ViewList ) ] ]
+            [ iconButton "" (fun _ -> dispatch ViewList ) arrowLeftIcon ] ]
       
       Columns.columns [ ] [ Column.column [ ] [ str e.Title ] ]
       Columns.columns [ ] [ Column.column [ ] 
         [ Button.list [ ]
             [ for x in e.TextParts do
                 viewTextPart x dispatch ] ] ]
-      //       View.StackLayout(
-      //         children = [
-      //           yield View.Label(text = e.Title, horizontalOptions = LayoutOptions.Start, horizontalTextAlignment=TextAlignment.Center)
-      //           yield View.ScrollView(
-      //             View.FlexLayout(
-      //               direction = FlexDirection.Row,
-      //               wrap = FlexWrap.Wrap,
-      //               children = [ 
-      //                   for x in e.TextParts do
-      //                     yield viewTextPart x dispatch ]))
+      Columns.columns [ ] [ Column.column [ ] [ Button.button [ Button.OnClick (fun _ -> dispatch (BulkToggleTextView (TextView.NoText))) ] [ str "Blanks" ] ] ]
+      Columns.columns [ ] [ Column.column [ ] [ Button.button [ Button.OnClick (fun _ -> dispatch (BulkToggleTextView (TextView.Letters 1))) ] [ str "First letter" ] ] ]
+      Columns.columns [ ] [ Column.column [ ] [ Button.button [ Button.OnClick (fun _ -> dispatch (BulkToggleTextView (TextView.FullText))) ] [ str "Full text" ] ] ]
       //           //match e.HintLevel with
       //           //| None ->
       //           //  yield View.Button(
@@ -315,36 +358,11 @@ let viewContent (model: Model) dispatch =
       //           //    minimumMaximum = (0.0,double maxVal),
       //           //    value = double hintLevel,
       //           //    valueChanged = (fun args -> dispatch (HintLevelChanged (int (args.NewValue + 0.5)))))
-      //           yield View.Button(
-      //             text = "Blanks",
-      //             fontFamily = materialFont, 
-      //             fontSize = FontSize 20.,
-      //             horizontalOptions = LayoutOptions.Start,
-      //             command = (fun () -> dispatch (BulkToggleTextView (TextView.NoText))))
-      //           yield View.Button(
-      //             text = "First letter",
-      //             fontFamily = materialFont, 
-      //             fontSize = FontSize 20.,
-      //             horizontalOptions = LayoutOptions.Start,
-      //             command = (fun () -> dispatch (BulkToggleTextView (TextView.Letters 1))))
-      //           yield View.Button(
-      //             text = "Full text",
-      //             fontFamily = materialFont, 
-      //             fontSize = FontSize 20.,
-      //             horizontalOptions = LayoutOptions.Start,
-      //             command = (fun () -> dispatch (BulkToggleTextView (TextView.FullText))))
-      //           yield View.Button(
-      //             text = IconFont.Pencil + " Edit",
-      //             fontFamily = materialFont, 
-      //             fontSize = FontSize 20.,
-      //             horizontalOptions = LayoutOptions.End,
-      //             command = (fun () -> dispatch (UpdateEntry e.Id)))])
     | None, None ->
       match model.Entries with
       | [] ->
-        Columns.columns [ ]
-          [ Column.column [ ]
-              [ bookPlusIcon [ ] ] ]
+        Columns.columns [ ] [ Column.column [ ] [ h3 [ ] [ str "Tap the blue book to create your first entry" ] ] ]
+        Columns.columns [ ] [ Column.column [ ] [ bookPlusIcon [ OnClick (fun _ -> dispatch AddEntry) :> IHTMLProp; Style [ CSSProp.Color "blue"; FontSize "50"; ] :> IHTMLProp ] ] ]
       //         View.StackLayout(
       //           verticalOptions = LayoutOptions.Center,
       //           children =
@@ -371,37 +389,14 @@ let viewContent (model: Model) dispatch =
       //         )
       | _ ->
         Columns.columns [ ]
-          [ Column.column [ ]
-              [ bookshelfIcon [ ]; span [ ] [ str "Entries" ] ] ]
+          [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ Icon.icon [ ] [ bookshelfIcon [ ] ]; ]
+            Column.column [ ] [ span [ ] [ str "Entries" ] ] ]
         for x in model.Entries do
-          Columns.columns [ ]
-            [ Column.column [ ]
-                [ iconButton x.Title Fa.Solid.Glasses (fun _ -> dispatch (SelectEntry x.Id)) ] ]
-          
-      //         View.StackLayout(
-      //           [ yield View.Label(
-      //               text = IconFont.Bookshelf + " Entries",
-      //               fontFamily = materialFont, 
-      //               fontSize = FontSize 30.)
-      //             for x in model.Entries do
-      //               yield View.Button(
-      //                 text = IconFont.Glasses + " " + x.Title,
-      //                 fontFamily = materialFont, 
-      //                 fontSize = FontSize 18.,
-      //                 fontAttributes = FontAttributes.Bold,
-      //                 backgroundColor = Color.Transparent,
-      //                 horizontalOptions = LayoutOptions.Start,
-      //                 command = (fun () -> dispatch (SelectEntry x.Id)))
-      //             yield View.Label(
-      //               text = IconFont.BookPlus,
-      //               fontFamily = materialFont, 
-      //               fontSize = FontSize 40.,
-      //               fontAttributes = FontAttributes.Bold,
-      //               textColor = Color.RoyalBlue,
-      //               backgroundColor = Color.Transparent,
-      //               horizontalOptions = LayoutOptions.Start,
-      //               gestureRecognizers = [ View.TapGestureRecognizer(command=(fun () -> dispatch AddEntry)) ])]
-      //         )
+          Columns.columns [ ] 
+            [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ iconButton "" (fun _ -> dispatch (SelectEntry x.Id)) glassesIcon ]
+              Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ iconButton "" (fun _ -> dispatch (UpdateEntry x.Id)) pencilIcon ]
+              Column.column [ ] [ str x.Title ] ]
+        Columns.columns [ ] [ Column.column [ ] [ iconButton "" (fun _ -> dispatch AddEntry) bookPlusIcon ] |> adminOnly model.User ]
   ]
 
 let view (model : Model) (dispatch : Msg -> unit) =
@@ -418,7 +413,8 @@ let view (model : Model) (dispatch : Msg -> unit) =
                     Navbar.End.div [ ]
                       [ Navbar.Item.div [ ] 
                           [ Button.button [ Button.OnClick (fun _ -> Auth.signOut dispatch) ] 
-                              [ str "Sign out"] ] ] ]
+                              [ str "Sign out"]
+                            iconButton "Demote user" (fun _ -> dispatch DemoteUser) boomGateDownIcon |> adminOnly model.User ] ] ]
                               // div [ ] [ a [ Href "#"; OnClick (fun _ -> authDisconnect dispatch) ] [ str "Disconnect" ] ]
       Section.section [(if model.User.IsSome then Section.Props [ Style [ Props.Display DisplayOptions.None ] ] else Section.Props [ ] ) ] [ Container.container [ ]
         [ Columns.columns [ Columns.IsCentered ]
@@ -429,13 +425,12 @@ let view (model : Model) (dispatch : Msg -> unit) =
                 [ Text.p [ Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ] [ str "or" ] ] ]
           Columns.columns [ Columns.IsCentered ]
             [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
-                [ iconButton "View as sample user" Fa.Solid.SignInAlt (fun _ -> dispatch (SignedIn AppUser.SampleUser)) ] ] ] ] 
+                [ iconButton "View as sample user" (fun _ -> dispatch (SignedIn Sample)) loginIcon ] ] ] ] 
       match model.User with
       | None -> ()
       | Some user ->
         Section.section [ ] 
-          [ //iconButton "Save entries" Fa.Solid.Save (fun _ -> dispatch SaveEntries)
-            viewContent model dispatch ] ]
+          [ viewContent model dispatch ] ]
 
 #if DEBUG
 open Elmish.Debug

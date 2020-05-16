@@ -190,7 +190,7 @@ let handlePostToken =
       // authenticate user
       let! p = GoogleJsonWebSignature.ValidateAsync(request.IdToken, GoogleJsonWebSignature.ValidationSettings(Audience = [ clientId ]))
       let! u = Data.getOrAddUser p.Email
-      let tokenResult = { TokenResult.Token = generateToken u.id }
+      let tokenResult = { TokenResult.Token = generateToken u.id; Role = u.Model.Role }
       return! json tokenResult next ctx
     }
 
