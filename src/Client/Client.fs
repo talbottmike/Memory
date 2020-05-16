@@ -70,7 +70,7 @@ module Auth =
     let configureAuth () =
       Browser.Dom.window?gapi?auth2?init(
         {|
-          client_id = "189067839764-sh4401gif3gmbi748dhrcnun747l7h09.apps.googleusercontent.com"
+          client_id = "189067839764-1i0jqhpp1igdf0cdenghhs6f09spbseu.apps.googleusercontent.com"
           fetch_basic_profile = false
           scope = "profile email openid"
         |}
