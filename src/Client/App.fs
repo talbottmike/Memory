@@ -18,7 +18,7 @@ open Client.Pages
 
 let handleNotFound (model: Shared.Domain.Model) =
     JS.console.error("Error parsing url: " + Browser.Dom.window.location.href)
-    ( model, Navigation.modifyUrl (toHash Page.Home) )
+    ( model, Navigation.newUrl (toHash Page.Home) )
 
 let urlUpdate (result:Page option) (model:Shared.Domain.Model) =
   match result with

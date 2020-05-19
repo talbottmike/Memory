@@ -12,7 +12,7 @@ type Page =
 
 let toHash =
   function
-  | Page.Home -> "#"
+  | Page.Home -> "#home"
   | Page.Editor id -> id |> Option.map (fun x -> sprintf "#editor?id=%s" (x.ToString())) |> Option.defaultValue "#editor"
   | Page.Entries -> "#entries"
   | Page.Practice id -> id |> Option.map (fun x -> sprintf "#practice?id=%s" (x.ToString())) |> Option.defaultValue "#practice"
@@ -30,7 +30,7 @@ let guidParam name =
 /// The URL is turned into a Result.
 let pageParser : Parser<Page -> Page,_> =
   oneOf
-    [ map Page.Home (s "")
+    [ map Page.Home (s "home")
       map Page.Editor (s "editor" <?> guidParam "id")
       map Page.Entries (s "entries")
       map Page.Practice (s "practice" <?> guidParam "id") ]
