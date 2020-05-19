@@ -9,11 +9,13 @@ open Client.Utils
 open Fulma
 open Fable.MaterialUI.MaterialDesignIcons
 open Fable.React.Props
+open Fable.Core
 
 let renderFn (props:Props) =
+  let homePage = if props.Model.User.IsSome then "#entries" else "#home"
   Navbar.navbar [ Navbar.Color IsPrimary ]
     [ Navbar.Brand.div [ ]
-        [ Navbar.Item.a [ Navbar.Item.Props [ Href "#" ] ]
+        [ Navbar.Item.a [ Navbar.Item.Props [ Href homePage ] ]
             [ img [ Style [ Width "2.5em" ] // Force svg display
                     Src "shape.svg" ] ]
           Navbar.Item.div [ ]

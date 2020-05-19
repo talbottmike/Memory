@@ -17,7 +17,7 @@ open Elmish.Navigation
 open Client.Pages
 
 let handleNotFound (model: Shared.Domain.Model) =
-    JS.console.error("Error parsing url: " + Browser.Dom.window.location.href)
+    //JS.console.error("Error parsing url: " + Browser.Dom.window.location.href)
     ( model, Navigation.newUrl (toHash Page.Home) )
 
 let urlUpdate (result:Page option) (model:Shared.Domain.Model) =
@@ -136,9 +136,6 @@ let viewContent (model: Model) dispatch =
         [ Columns.columns [ Columns.IsCentered ]
             [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
                 [ div [ Id "g-signin-btn" ] [ ] ] ]
-          Columns.columns [ Columns.IsCentered ]
-            [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
-                [ Text.p [ Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ] [ str "or" ] ] ]
           Columns.columns [ Columns.IsCentered ]
             [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
                 [ Styles.iconButton "View as sample user" (fun _ -> dispatch (SignedIn Sample)) loginIcon ] ] ] ]

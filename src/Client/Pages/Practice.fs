@@ -78,8 +78,9 @@ let viewTextPart (x : TextPart) (dispatch : Msg -> unit) =
     | TextType.Punctuation -> ignore
     | TextType.Word -> (fun _ -> dispatch (ToggleTextView { Id = x.Id; TextView = Shared.Helpers.toggleTextView x }))
 
-  Text.span [ Props [ OnClick g; Style [ CSSProp.FontFamily "monospace"; ] :> IHTMLProp ] ] [ str (if x.HasSpaceBefore then " " + t else t) ]
-
+  Text.span [ Props [ OnClick g; Style [ CSSProp.FontFamily "monospace"; ] :> IHTMLProp ]
+              Modifiers [ Modifier.TextSize (Screen.All, TextSize.Is5) ] ]
+            [ str (if x.HasSpaceBefore then " " + t else t) ]
 
 let view (model : Practice.Model) (dispatch : Practice.Msg -> unit) =
   div [ ] 
