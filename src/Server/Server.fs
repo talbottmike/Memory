@@ -8,6 +8,7 @@ open FSharp.Control.Tasks.V2
 open Giraffe
 open Saturn
 open Shared
+open Shared.Domain
 open System.Security.Claims
 open Giraffe.ResponseWriters
 open Giraffe.Core
@@ -70,6 +71,13 @@ module Data =
       partition: string
       Model : StorageUser }
 
+  [<CLIMutable>]
+  type SampleStorageModel =
+    { id: string
+      [<PartitionKey>]
+      partition: string
+      Model : MemorizationEntry }
+
   type UserKey = { id : string; partition : string; }
 
   let existsUser (emailAddress : string) =
@@ -109,7 +117,7 @@ module Data =
         existingUser
         |> Option.map Task.singleton
         |> Option.defaultWith (fun () -> 
-          let newUser = { id = userId; partition = partition; Model = { EmailAddress = userId; Role = None; Entries = []; } }
+          let newUser = { UserStorageModel.id = userId; partition = partition; Model = { EmailAddress = userId; Role = None; Entries = []; } }
           container
           |> Cosmos.insert<UserStorageModel> newUser
           |> Cosmos.execAsync
@@ -143,11 +151,28 @@ module Data =
         |> Async.StartAsTask
       return result
     }
+        
+  let addSampleEntry (request : MemorizationEntry) =
+    task {
+      let id = request.Id.ToString().ToLower()
+      let partition = sprintf "/%s/%s/%s" appEnvironment "Samples" id
+      let updateFn (m : SampleStorageModel) = { m with Model = request }
+      let! result = 
+        CosmosClientOptions(Serializer = CustomCosmosSerializer())
+        |> Cosmos.fromConnectionStringWithOptions cosmosConnectionString
+        |> Cosmos.database databaseName
+        |> Cosmos.container containerName
+        |> Cosmos.insert<SampleStorageModel> { id = id; partition = partition; Model = request }
+        |> Cosmos.execAsync
+        |> AsyncSeq.iter ignore
+        |> Async.StartAsTask
+      return result
+    }
 
   let getEntries (emailAddress : string) =
     task {
       let userId = emailAddress.ToLower()
-      let partition = sprintf "/%s/%s/%s" appEnvironment "Users" (emailAddress.ToLower())
+      let partition = sprintf "/%s/%s/%s" appEnvironment "Users" userId
       let! result =
         CosmosClientOptions(Serializer = CustomCosmosSerializer())
         |> Cosmos.fromConnectionStringWithOptions cosmosConnectionString
@@ -159,6 +184,25 @@ module Data =
         |> AsyncSeq.map (fun x -> x.Model.Entries)
         |> AsyncSeq.toListAsync
         |> Async.map (fun x -> x |> List.collect id)
+        |> Async.StartAsTask
+      return result
+    }
+
+  let getSampleEntry (id : string) =
+    task {
+      let id = id.ToString().ToLower()
+      let partition = sprintf "/%s/%s/%s" appEnvironment "Samples" id
+      let! result =
+        CosmosClientOptions(Serializer = CustomCosmosSerializer())
+        |> Cosmos.fromConnectionStringWithOptions cosmosConnectionString
+        |> Cosmos.database databaseName
+        |> Cosmos.container containerName
+        |> Cosmos.query "SELECT * FROM a WHERE a.id = @id and a.partition = @partition"
+        |> Cosmos.parameters [ ("@id", box id); ("@partition", box partition) ]
+        |> Cosmos.execAsync<SampleStorageModel>
+        |> AsyncSeq.map (fun x -> x.Model)
+        |> AsyncSeq.toListAsync
+        |> Async.map (fun x -> x |> List.tryHead)
         |> Async.StartAsTask
       return result
     }
@@ -198,6 +242,14 @@ let handlePostToken =
       return! json tokenResult next ctx
     }
 
+let handleSampleRequest (id : string) =
+  fun (next : HttpFunc) (ctx : HttpContext) ->
+    task {
+      let validationSettings = GoogleJsonWebSignature.ValidationSettings(Audience = [ clientId; "memoria.azurewebsites.net"; "memoriamastered.com"; ])
+      let! getResult = Data.getSampleEntry id
+      return! json getResult next ctx
+    }
+
 let securedRouter = 
   router {
     pipe_through (Auth.requireAuthentication JWT)
@@ -211,9 +263,17 @@ let securedRouter =
     )
     post "/add" (fun next ctx ->
       task {
-        let! request = ctx.BindJsonAsync<Shared.MemorizationEntry>()
+        let! request = ctx.BindJsonAsync<Domain.MemorizationEntry>()
         let userId = getSecuredUserId ctx
         do! Data.addEntry userId request
+        return! json request next ctx
+      }
+    )
+    post "/addSample" (fun next ctx ->
+      task {
+        let! request = ctx.BindJsonAsync<Domain.MemorizationEntry>()
+        let userId = getSecuredUserId ctx
+        do! Data.addSampleEntry request
         return! json request next ctx
       }
     )
@@ -224,6 +284,7 @@ let topRouter =
     not_found_handler (setStatusCode 404 >=> text "Not Found")
     //get "/" (text "public route")
     post "/api/token" handlePostToken
+    getf "/api/samples/%s" handleSampleRequest
     forward "/api" securedRouter
   }
 

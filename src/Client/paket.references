@@ -4,6 +4,7 @@ group Client
     Fable.Elmish.Debugger
     Fable.Elmish.React
     Fable.Elmish.HMR
+    Fable.Elmish.Browser
     Thoth.Fetch
     Fulma
     Fulma.Extensions.Wikiki.Tooltip
