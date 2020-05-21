@@ -30,6 +30,7 @@ group Client
     nuget Fable.React ~> 5
     nuget Fulma ~> 2
     nuget Fulma.Extensions.Wikiki.Tooltip
+    nuget Fulma.Extensions.Wikiki.PageLoader
     nuget Fable.Browser.Navigator
     nuget Fable.Browser.Worker
     nuget Fable.Browser.Dom

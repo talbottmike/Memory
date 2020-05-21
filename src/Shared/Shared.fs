@@ -88,6 +88,7 @@ module Domain =
       
   type Model = 
     { MenuModel : Menu.Model
+      IsLoading : bool
       PageModel : PageModel }
 
   /// The composed set of messages that update the state of the application
@@ -104,6 +105,7 @@ module Domain =
     // | StorageFailure of exn
     | TokenReceived of TokenResult
     | MenuBurgerToggled of unit
+    | AuthConfigured
 
 module Helpers =
   open Domain

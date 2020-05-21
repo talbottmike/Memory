@@ -30,6 +30,6 @@ let update (msg:Home.Msg) model : Home.Model*Cmd<Home.Msg> =
 
 let view = elmishView "Home" (fun { Model = model; Dispatch = dispatch; } ->
   div [ ]
-        [ // div [ ] [ a [ Href "#"; OnClick (fun _ -> authDisconnect dispatch) ] [ str "Disconnect" ] ]
+        [ // div [ ] [ a [ Href "#"; OnClick (fun _ -> authDisconnect (fun () -> dispatch AuthDisconnected)) ] [ str "Disconnect" ] ]
         ]
 )

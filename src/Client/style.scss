@@ -29,5 +29,6 @@ $primary-invert: findColorInvert($primary);
 // Bulma
 @import "~bulma/bulma";
 @import '~bulma-slider/dist/css/bulma-slider.sass';
+@import '~bulma-pageloader/dist/css/bulma-pageloader.sass';
 @import "~bulma-tooltip/src/sass/index.sass";
 

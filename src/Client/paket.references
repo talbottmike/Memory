@@ -8,6 +8,7 @@ group Client
     Thoth.Fetch
     Fulma
     Fulma.Extensions.Wikiki.Tooltip
+    Fulma.Extensions.Wikiki.PageLoader
     Fable.Browser.Navigator
     Fable.Browser.Worker
     Fable.Browser.Dom

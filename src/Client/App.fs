@@ -48,33 +48,13 @@ let urlUpdate (result:Page option) (model:Shared.Domain.Model) =
 let gapiImported: obj = Fable.Core.JsInterop.importAll "./platform.js"
 
 let init page : Shared.Domain.Model * Cmd<Shared.Domain.Msg> =
-  let model = { MenuModel = { User = None; IsBurgerOpen = false; }; PageModel = HomeModel Home.Model.Empty }
+  let model = { MenuModel = { User = None; IsBurgerOpen = false; }; IsLoading = true; PageModel = HomeModel Home.Model.Empty }
   urlUpdate page model
   
 let update (msg : Shared.Domain.Msg) (model : Shared.Domain.Model) : Shared.Domain.Model * Cmd<Shared.Domain.Msg> =
   match msg, model.PageModel with
   | MenuBurgerToggled (),_ ->
     { model with MenuModel = { model.MenuModel with IsBurgerOpen = not model.MenuModel.IsBurgerOpen }}, Cmd.none
-  | EditorMsg msg, EditorModel m ->
-      let m, cmd = Editor.update msg m
-      { model with
-          PageModel = EditorModel m }, Cmd.map EditorMsg cmd
-  | EditorMsg _, _ -> model, Cmd.none
-  | EntriesMsg msg, EntriesModel m ->
-      let m, cmd = Entries.update msg m
-      { model with
-          PageModel = EntriesModel m }, Cmd.map EntriesMsg cmd
-  | EntriesMsg _, _ -> model, Cmd.none
-  | HomeMsg msg, HomeModel m ->
-    let m, cmd = Home.update msg m
-    { model with
-        PageModel = HomeModel m }, Cmd.map HomeMsg cmd
-  | HomeMsg _, _ -> model, Cmd.none
-  | PracticeMsg msg, PracticeModel m ->
-      let m, cmd = Practice.update msg m
-      { model with
-          PageModel = PracticeModel m }, Cmd.map PracticeMsg cmd
-  | PracticeMsg _, _ -> model, Cmd.none
   | TokenReceived t,_ ->
     match model.MenuModel.User with
     | Some u ->
@@ -101,6 +81,28 @@ let update (msg : Shared.Domain.Msg) (model : Shared.Domain.Model) : Shared.Doma
       | Sample -> Navigation.newUrl (toHash Page.Entries)
       | Google g -> Cmd.OfPromise.perform Api.getToken { IdToken = g.Token } TokenReceived
     { model with MenuModel = { model.MenuModel with User = Some { AppUser.Provider = p; MemoriaToken = None; Role = None; } }; }, cmd
+  | AuthConfigured,_ ->
+    { model with IsLoading = false; }, Cmd.none
+  | EditorMsg msg, EditorModel m ->
+      let m, cmd = Editor.update msg m
+      { model with
+          PageModel = EditorModel m }, Cmd.map EditorMsg cmd
+  | EditorMsg _, _ -> model, Cmd.none
+  | EntriesMsg msg, EntriesModel m ->
+      let m, cmd = Entries.update msg m
+      { model with
+          PageModel = EntriesModel m }, Cmd.map EntriesMsg cmd
+  | EntriesMsg _, _ -> model, Cmd.none
+  | HomeMsg msg, HomeModel m ->
+    let m, cmd = Home.update msg m
+    { model with
+        PageModel = HomeModel m }, Cmd.map HomeMsg cmd
+  | HomeMsg _, _ -> model, Cmd.none
+  | PracticeMsg msg, PracticeModel m ->
+      let m, cmd = Practice.update msg m
+      { model with
+          PageModel = PracticeModel m }, Cmd.map PracticeMsg cmd
+  | PracticeMsg _, _ -> model, Cmd.none
   //   | StorageFailure _ ->
   //     model, Cmd.none
 
@@ -133,15 +135,7 @@ let viewContent (model: Model) dispatch =
     match model.PageModel with
     | EditorModel m -> Editor.view m (EditorMsg >> dispatch)
     | EntriesModel m -> Entries.view m (EntriesMsg >> dispatch)
-    | HomeModel m -> 
-      Section.section [(if model.MenuModel.User.IsSome then Section.Props [ Style [ Props.Display DisplayOptions.None ] ] else Section.Props [ ] ) ] [ Container.container [ ]
-        [ Columns.columns [ Columns.IsCentered ]
-            [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
-                [ div [ Id "g-signin-btn" ] [ ] ] ]
-          Columns.columns [ Columns.IsCentered ]
-            [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
-                [ Styles.iconButton "View as sample user" (fun _ -> dispatch (SignedIn Sample)) loginIcon ] ] ] ]
-      Home.view { Home.Props.Model = m; Home.Props.Dispatch = (HomeMsg >> dispatch); }
+    | HomeModel m -> Home.view { Home.Props.Model = m; Home.Props.Dispatch = (HomeMsg >> dispatch); }
     | PracticeModel m -> Practice.view m (PracticeMsg >> dispatch)
   ]
 
@@ -150,8 +144,21 @@ open Fable.React.Props
 open Client.Styles
 
 let view model dispatch =
-  div [ Key "Application"; OnLoad (fun _ -> Auth.init dispatch; ) ] [
+  let hideLogin =
+    match model.PageModel, model.MenuModel.User with
+    | PageModel.HomeModel _, None -> false
+    | _,_ -> true
+
+  div [ Key "Application"; OnLoad (fun _ -> Auth.init (fun () -> dispatch AuthConfigured) (fun user -> dispatch (SignedIn user)); ) ] [
+    PageLoader.pageLoader [ PageLoader.Color IsLight; PageLoader.IsActive model.IsLoading ] [ ]
     Menu.view { Model = model.MenuModel; OnLogout = (LoggedOut >> dispatch); OnToggleBurger = (MenuBurgerToggled >> dispatch) }
+    Section.section [(if hideLogin then Section.Props [ Style [ Props.Display DisplayOptions.None ] ] else Section.Props [ ] ) ] [ Container.container [ ]
+      [ Columns.columns [ Columns.IsCentered ]
+          [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
+              [ div [ Id "g-signin-btn" ] [ ] ] ]
+        Columns.columns [ Columns.IsCentered ]
+          [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
+              [ Styles.iconButton "View as sample user" (fun _ -> dispatch (SignedIn Sample)) loginIcon ] ] ] ]
     viewContent model dispatch ]
 
 #if DEBUG

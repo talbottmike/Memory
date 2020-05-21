@@ -1,8 +1,9 @@
 module Client.Auth
 open Fable.Core.JsInterop
 open Shared.Domain
+open Fable.Core
 
-let init dispatch = 
+let init (authConfiguredFn : unit -> unit) (signedInFn : UserProvider -> unit) = 
   let onSignIn g = 
     // JS.console.log("on sign in, granted scopes: ")
     // JS.console.log(g?getGrantedScopes())
@@ -18,7 +19,7 @@ let init dispatch =
         Name = profileName.ToString()
         Email = profileEmail.ToString() }
       |> Google
-    dispatch (SignedIn user)
+    signedInFn user
   let configureAuth () =
     Browser.Dom.window?gapi?auth2?init(
       {|
@@ -39,8 +40,9 @@ let init dispatch =
       |}
     Browser.Dom.window?gapi?signin2?render("g-signin-btn", config);
   Browser.Dom.window?gapi?load("auth2", configureAuth)
+  authConfiguredFn ()
   ()
-let disconnect dispatch =
+let disconnect disconnectedFn =
   let auth2 = Browser.Dom.window?gapi?auth2?getAuthInstance()
   let isUserSignedIn = auth2?isSignedIn?get()
   if ((bool) isUserSignedIn)
@@ -49,7 +51,7 @@ let disconnect dispatch =
   else 
     //JS.console.log("Not signed in, cannot disconnect")
     ()
-  dispatch AuthDisconnected
+  disconnectedFn ()
 let signOut signedOutFn =
   let auth2 = Browser.Dom.window?gapi?auth2?getAuthInstance()
   auth2?signOut()?``then``(signedOutFn)
