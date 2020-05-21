@@ -16,8 +16,7 @@ let init dispatch =
       { Token = token.ToString()
         Id = profileId.ToString()
         Name = profileName.ToString()
-        Email = profileEmail.ToString()
-        MemoriaToken = None }
+        Email = profileEmail.ToString() }
       |> Google
     dispatch (SignedIn user)
   let configureAuth () =

@@ -152,6 +152,31 @@ module Data =
       return result
     }
         
+  let removeEntry (emailAddress : string) (entryId : Guid) =
+    task {
+      let userId = emailAddress.ToLower()
+      let partition = sprintf "/%s/%s/%s" appEnvironment "Users" (emailAddress.ToLower())
+      let updateFn (m : UserStorageModel) = 
+        let exists = m.Model.Entries |> List.exists (fun x -> x.Id = entryId)
+        let newModel =
+          if exists
+          then 
+            { m.Model with Entries = m.Model.Entries |> List.filter (fun x -> x.Id <> entryId) }
+          else
+            m.Model
+        { m with Model = newModel }
+      let! result = 
+        CosmosClientOptions(Serializer = CustomCosmosSerializer())
+        |> Cosmos.fromConnectionStringWithOptions cosmosConnectionString
+        |> Cosmos.database databaseName
+        |> Cosmos.container containerName
+        |> Cosmos.update userId partition updateFn
+        |> Cosmos.execAsync
+        |> AsyncSeq.iter ignore
+        |> Async.StartAsTask
+      return result
+    }
+        
   let addSampleEntry (request : MemorizationEntry) =
     task {
       let id = request.Id.ToString().ToLower()
@@ -266,6 +291,14 @@ let securedRouter =
         let! request = ctx.BindJsonAsync<Domain.MemorizationEntry>()
         let userId = getSecuredUserId ctx
         do! Data.addEntry userId request
+        return! json request next ctx
+      }
+    )
+    post "/remove" (fun next ctx ->
+      task {
+        let! request = ctx.BindJsonAsync<Guid>()
+        let userId = getSecuredUserId ctx
+        do! Data.removeEntry userId request
         return! json request next ctx
       }
     )

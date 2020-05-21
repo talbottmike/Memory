@@ -40,6 +40,13 @@ let addEntry (token, request : MemorizationEntryDisplay) =
   let r = { Id = request.Id; Text = request.Text; Title = request.Title }
   Fetch.post<_, MemorizationEntry> (Shared.baseUrl + "api/add", data = r, headers = authenticatedJsonHeaders)
 
+let removeEntry (token, request : Guid) =
+  let authenticatedJsonHeaders =
+      [ HttpRequestHeaders.Authorization (sprintf "Bearer %s" token)
+        HttpRequestHeaders.ContentType "application/json" ]
+  let r = request
+  Fetch.post<_, MemorizationEntry> (Shared.baseUrl + "api/remove", data = r, headers = authenticatedJsonHeaders)
+
 let addSampleEntry (token, request : MemorizationEntry) =
   let authenticatedJsonHeaders =
       [ HttpRequestHeaders.Authorization (sprintf "Bearer %s" token)
@@ -87,6 +94,7 @@ let update (msg:Editor.Msg) model : Editor.Model*Cmd<Editor.Msg> =
         [ dbSave ]
         |> List.choose id
       model, Cmd.batch cmds
+  | EntryRemovedFromDatabase
   | EntryAddedToDatabase ->
     model, Cmd.none
   | CancelEntry
@@ -95,7 +103,21 @@ let update (msg:Editor.Msg) model : Editor.Model*Cmd<Editor.Msg> =
     let navCmd = Navigation.newUrl (toHash Page.Entries)
     model, navCmd
   | RemoveEntry guid ->
-    model, Cmd.OfFunc.perform (WebStorage.Entries.removeEntry) guid (fun _ -> RemovedEntry)
+    let cmds =
+      let browserRemove = Cmd.OfFunc.perform (WebStorage.Entries.removeEntry) guid (fun _ -> RemovedEntry)
+      let dbRemove =
+        match model.User with
+        | Some u ->
+          match u.Role, u.MemoriaToken with
+          | Some Subscriber, Some t
+          | Some Admin, Some t ->
+            Cmd.OfPromise.perform removeEntry (t, guid) (fun _ -> EntryRemovedFromDatabase) |> Some
+          | _ -> None
+        | _ -> None
+      [ Some browserRemove
+        dbRemove ]
+      |> List.choose id
+    model, Cmd.batch cmds
   | UpdateText t ->
     { model with Text = t }, Cmd.none
   | UpdateTitle t ->

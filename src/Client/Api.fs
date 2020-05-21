@@ -15,7 +15,7 @@ let getToken (tokenRequest : GoogleLoginRequest) =
 
 let sampleEntries () = Fetch.fetchAs<unit, MemorizationEntry list> "/sample.json"
 
-let googleEntries (g : GoogleUser) = 
+let getEntries (g : AppUser) = 
   let authenticatedJsonHeaders =
       g.MemoriaToken 
       |> Option.map (sprintf "Bearer %s" >> HttpRequestHeaders.Authorization) 

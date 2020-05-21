@@ -48,11 +48,13 @@ let urlUpdate (result:Page option) (model:Shared.Domain.Model) =
 let gapiImported: obj = Fable.Core.JsInterop.importAll "./platform.js"
 
 let init page : Shared.Domain.Model * Cmd<Shared.Domain.Msg> =
-  let model = { MenuModel = { User = None }; PageModel = HomeModel Home.Model.Empty }
+  let model = { MenuModel = { User = None; IsBurgerOpen = false; }; PageModel = HomeModel Home.Model.Empty }
   urlUpdate page model
   
 let update (msg : Shared.Domain.Msg) (model : Shared.Domain.Model) : Shared.Domain.Model * Cmd<Shared.Domain.Msg> =
   match msg, model.PageModel with
+  | MenuBurgerToggled (),_ ->
+    { model with MenuModel = { model.MenuModel with IsBurgerOpen = not model.MenuModel.IsBurgerOpen }}, Cmd.none
   | EditorMsg msg, EditorModel m ->
       let m, cmd = Editor.update msg m
       { model with
@@ -79,7 +81,7 @@ let update (msg : Shared.Domain.Msg) (model : Shared.Domain.Model) : Shared.Doma
       let cmd =   
         match u.Provider, model.PageModel with
         | Google g, HomeModel _ -> 
-          [ Cmd.OfPromise.perform Api.googleEntries { g with MemoriaToken = Some t.Token } (Entries.Msg.EntriesLoaded >> EntriesMsg)
+          [ Cmd.OfPromise.perform Api.getEntries { u with MemoriaToken = Some t.Token } (Entries.Msg.EntriesLoaded >> EntriesMsg)
             Navigation.newUrl (toHash Page.Entries) ]
           |> Cmd.batch
         | _ -> Cmd.none
@@ -149,7 +151,7 @@ open Client.Styles
 
 let view model dispatch =
   div [ Key "Application"; OnLoad (fun _ -> Auth.init dispatch; ) ] [
-    Menu.view { Model = model.MenuModel; OnLogout = (LoggedOut >> dispatch) }
+    Menu.view { Model = model.MenuModel; OnLogout = (LoggedOut >> dispatch); OnToggleBurger = (MenuBurgerToggled >> dispatch) }
     viewContent model dispatch ]
 
 #if DEBUG

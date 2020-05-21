@@ -20,13 +20,18 @@ let renderFn (props:Props) =
                     Src "shape.svg" ] ]
           Navbar.Item.div [ ]
             [ Heading.h2 [ ]
-                [ str "memoria" ] ] ]
-      if props.Model.User.IsSome then
-        Navbar.End.div [ ]
-          [ Navbar.Item.div [ ] 
-              [ Button.button [ Button.OnClick (fun _ -> Auth.signOut props.OnLogout) ] 
-                  [ str "Sign out"]
-                //Styles.iconButton "Demote user" (fun _ -> dispatch DemoteUser) boomGateDownIcon |> Styles.adminOnly props.Model.User 
-                ] ] ]
+                [ str "memoria" ] ] 
+          Navbar.burger [ Navbar.Burger.IsActive props.Model.IsBurgerOpen; Navbar.Burger.OnClick (fun _ -> props.OnToggleBurger()) ]
+                  [ span [] []
+                    span [] []
+                    span [] [] ] ]
+      
+      Navbar.menu [ Navbar.Menu.IsActive props.Model.IsBurgerOpen ]
+        [ Navbar.Start.div []
+            [ Navbar.Item.div [ ] [ ] ]
+          if props.Model.User.IsSome then
+            Navbar.End.div [ ]
+              [ //Styles.iconButton "Demote user" (fun _ -> dispatch DemoteUser) boomGateDownIcon |> Styles.adminOnly props.Model.User 
+                Navbar.Item.div [ ] [ Button.button [ Button.OnClick (fun _ -> Auth.signOut props.OnLogout) ] [ str "Sign out"] ] ] ] ]
 
 let view = elmishView "Menu" renderFn

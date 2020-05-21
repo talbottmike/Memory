@@ -7,7 +7,7 @@ module Domain =
   type MemorizationEntryDisplay = { Id : Guid; Title : string; Text : string; TextParts : TextPart list; HintLevel : int option; }
   type MemorizationEntry = { Id : Guid; Title : string; Text : string; }
   type EditorValues = { EntryId : Guid option; Title : string; Text : string; }
-  type GoogleUser = { Token : string; Id : string; Name : string; Email : string; MemoriaToken : string option }
+  type GoogleUser = { Token : string; Id : string; Name : string; Email : string; }
   type UserRole = | Admin | Subscriber
   type TokenResult = { Token : string; Role : UserRole option; }
   type UserProvider =
@@ -20,10 +20,12 @@ module Domain =
 
   module Menu =
     type Model = 
-      { User : AppUser option }
+      { User : AppUser option
+        IsBurgerOpen : bool }
     type Props = 
       { Model : Model
-        OnLogout : unit -> unit }
+        OnLogout : unit -> unit
+        OnToggleBurger: unit -> unit }
 
   module Editor =
     type Model = { User : AppUser option; EntryId : Guid option; Text : string; Title : string; } 
@@ -38,6 +40,7 @@ module Domain =
       | RemoveEntry of Guid
       | RemovedEntry
       | EntryAddedToDatabase
+      | EntryRemovedFromDatabase
     type Props = 
       { Model: Model
         Dispatch: Msg -> unit }
@@ -50,6 +53,7 @@ module Domain =
       | UpdateEntry of Guid
       | BrowserEntriesLoaded of MemorizationEntryDisplay list
       | EntriesLoaded of MemorizationEntry list
+      | SavedEntries
     type Props = 
       { Model: Model
         Dispatch: Msg -> unit }
@@ -99,6 +103,7 @@ module Domain =
     | AuthDisconnected
     // | StorageFailure of exn
     | TokenReceived of TokenResult
+    | MenuBurgerToggled of unit
 
 module Helpers =
   open Domain

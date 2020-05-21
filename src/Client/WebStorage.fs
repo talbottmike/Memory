@@ -36,6 +36,9 @@ module Entries =
     | Ok entries -> entries
     | Error _ -> [ ]
 
+  let saveEntries (entries : MemorizationEntryDisplay list) : unit =
+    save "entryList" entries
+
   let saveEntry (entry : MemorizationEntryDisplay) : unit =
     let existingEntries = load ()
     let existingEntryIdOption = existingEntries |> List.tryFind (fun x -> x.Id = entry.Id) |> Option.map (fun x -> x.Id)

@@ -61,7 +61,6 @@ let update (msg:Msg) model : Model*Cmd<Msg> =
     model, Cmd.batch [savePracticeStateCmd; navCmd; ]
   | _,SavedEntryPracticeState ->
     model, Cmd.none
-  
 
 let viewTextPart (x : TextPart) (dispatch : Msg -> unit) =
   let t =
