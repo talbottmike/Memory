@@ -58,9 +58,10 @@ let openBrowser url =
     |> Proc.run
     |> ignore
 
-
 Target.create "Clean" (fun _ ->
+    let staticOutputDir = Path.combine clientPath "Fornax/_public"
     [ deployDir
+      staticOutputDir
       clientDeployPath ]
     |> Shell.cleanDirs
 )
@@ -80,6 +81,8 @@ Target.create "Build" (fun _ ->
        ("let app = \"" + release.NugetVersion + "\"")
         System.Text.Encoding.UTF8
         (Path.combine clientPath "Version.fs")
+    let templateDir = Path.combine clientPath "Fornax"
+    runDotNet "fornax build" templateDir
     runTool yarnTool "webpack-cli -p" __SOURCE_DIRECTORY__
 )
 
