@@ -11,6 +11,7 @@ open System
 open Fake.Core
 open Fake.DotNet
 open Fake.IO
+open Fake.IO.FileSystemOperators
 
 Target.initEnvironment ()
 
@@ -83,6 +84,10 @@ Target.create "Build" (fun _ ->
 )
 
 Target.create "Run" (fun _ ->
+    let staticSite = async {
+        let templateDir = Path.combine clientPath "Fornax"
+        runDotNet "fornax watch --port 8081" templateDir
+    }
     let server = async {
         runDotNet "watch run" serverPath
     }
@@ -100,6 +105,7 @@ Target.create "Run" (fun _ ->
     let tasks =
         [ if not safeClientOnly then yield server
           yield client
+          yield staticSite
           if not vsCodeSession then yield browser ]
 
     tasks

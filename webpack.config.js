@@ -22,6 +22,7 @@ var CONFIG = {
     cssEntry: './src/Client/style.scss',
     outputDir: './src/Client/deploy',
     assetsDir: './src/Client/public',
+    staticAssetsDir: './src/Client/Fornax/_public',
     devServerPort: 8080,
     // When using webpack-dev-server, you may need to redirect some calls
     // to a external API server. See https://webpack.js.org/configuration/dev-server/#devserver-proxy
@@ -65,7 +66,7 @@ console.log('Bundling for ' + (isProduction ? 'production' : 'development') + '.
 // and automatically injects <script> or <link> tags for generated bundles.
 var commonPlugins = [
     new HtmlWebpackPlugin({
-        filename: 'index.html',
+        filename: 'app.html',
         template: resolve(CONFIG.indexHtmlTemplate)
     })
 ];
@@ -106,7 +107,7 @@ module.exports = {
     plugins: isProduction ?
         commonPlugins.concat([
             new MiniCssExtractPlugin({ filename: 'style.[hash].css' }),
-            new CopyWebpackPlugin([{ from: resolve(CONFIG.assetsDir) }]),
+            new CopyWebpackPlugin([{ from: resolve(CONFIG.assetsDir) },{ from: resolve(CONFIG.staticAssetsDir) }]),
             // new WorkboxPlugin.GenerateSW({
             //     // these options encourage the ServiceWorkers to get in there fast
             //     // and not allow any straggling "old" SWs to hang around
@@ -222,7 +223,7 @@ module.exports = {
     // Configuration for webpack-dev-server
     devServer: {
         publicPath: '/',
-        contentBase: resolve(CONFIG.assetsDir),
+        contentBase: [ resolve(CONFIG.assetsDir), resolve(CONFIG.staticAssetsDir) ],
         host: '0.0.0.0',
         port: CONFIG.devServerPort,
         proxy: CONFIG.devServerProxy,

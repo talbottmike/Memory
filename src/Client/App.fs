@@ -60,6 +60,7 @@ let update (msg : Shared.Domain.Msg) (model : Shared.Domain.Model) : Shared.Doma
     | Some u ->
       let cmd =   
         match u.Provider, model.PageModel with
+        | Google g, EntriesModel _
         | Google g, HomeModel _ -> 
           [ Cmd.OfPromise.perform Api.getEntries { u with MemoriaToken = Some t.Token } (Entries.Msg.EntriesLoaded >> EntriesMsg)
             Navigation.newUrl (toHash Page.Entries) ]

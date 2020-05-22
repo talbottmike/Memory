@@ -1,11 +1,11 @@
 {
-    "short_name": "memoriaPWA",
-    "name": "memoria PWA",
-    "start_url": "/index.html",
-    "display":"fullscreen",
+    "short_name": "memoria",
+    "name": "memoria",
+    "start_url": "/app.html",
+    "display":"standalone",
     "orientation":"portrait",
-    "theme_color": "#317EFB",
-    "background_color":"#000000",
+    "theme_color": "#D6D16F",
+    "background_color":"#F80505",
     "icons": [
       {
        "src": "icons/ic_launcher-48x48.png",

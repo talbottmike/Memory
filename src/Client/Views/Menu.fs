@@ -12,10 +12,10 @@ open Fable.React.Props
 open Fable.Core
 
 let renderFn (props:Props) =
-  let homePage = if props.Model.User.IsSome then "#entries" else "#home"
+  let homePage = "/app.html#home"
   Navbar.navbar [ Navbar.Color IsPrimary ]
     [ Navbar.Brand.div [ ]
-        [ Navbar.Item.a [ Navbar.Item.Props [ Href homePage ] ]
+        [ Navbar.Item.a [ Navbar.Item.Props [ Href "/" ] ]
             [ img [ Style [ Width "2.5em" ] // Force svg display
                     Src "shape.svg" ] ]
           Navbar.Item.div [ ]
@@ -33,7 +33,7 @@ let renderFn (props:Props) =
             [ //Styles.iconButton "Demote user" (fun _ -> dispatch DemoteUser) boomGateDownIcon |> Styles.adminOnly props.Model.User 
               
               match props.Model.User with
-              | Some _ -> Navbar.Item.div [ ] [ Button.button [ Button.OnClick (fun _ -> Auth.signOut props.OnLogout) ] [ str "Sign out"] ]
-              | None -> Navbar.Item.a [ Navbar.Item.Props [ Href homePage ] ] [ Button.button [ ] [ str "Sign In"] ] ] ] ]
+              | Some _ -> Navbar.Item.a [ Navbar.Item.Props [ OnClick (fun _ -> Auth.signOut props.OnLogout) ] ] [ str "Sign out"]
+              | None -> Navbar.Item.a [ Navbar.Item.Props [ Href homePage ] ] [ str "Sign In" ] ] ] ]
 
 let view = elmishView "Menu" renderFn
