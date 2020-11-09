@@ -20,7 +20,7 @@ let toHash =
   | Page.FlashCards -> "#flashcards"
 
 let guidParam name =
-  (fun x -> 
+  (fun (x : string option) -> 
     x
     |> Option.bind (fun v ->
       match System.Guid.TryParse v with

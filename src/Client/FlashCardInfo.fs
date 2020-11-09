@@ -489,7 +489,7 @@ let allFlashCards =
   ]
   |> List.map (fun (l,q,a) ->
     {
-        Lesson = "Lesson " + l.ToString()
+        Lesson = l
         Front = { Question = q }
         Back = { Answer = a }
     }  

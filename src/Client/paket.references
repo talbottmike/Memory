@@ -1,16 +1,18 @@
-group Client
-    FSharp.Core
-    Fable.Core
-    Fable.Elmish.Debugger
-    Fable.Elmish.React
-    Fable.Elmish.HMR
-    Fable.Elmish.Browser
-    Thoth.Fetch
-    Fulma
-    Fulma.Extensions.Wikiki.Tooltip
-    Fulma.Extensions.Wikiki.PageLoader
-    Fable.Browser.Navigator
-    Fable.Browser.Worker
-    Fable.Browser.Dom
-    Fable.MaterialUI.MaterialDesignIcons
-
+FSharp.Core
+Fable.Core
+Fable.Elmish.Debugger
+Fable.Elmish.React
+Fable.Elmish.HMR
+Fable.Elmish.Browser
+Thoth.Fetch
+Thoth.Json
+Fulma
+Fulma.Extensions.Wikiki.Tooltip
+Fulma.Extensions.Wikiki.PageLoader
+Fable.Browser.Navigator
+Fable.Browser.Worker
+Fable.Browser.Dom
+Feliz
+Feliz.MaterialUI
+Fable.MaterialUI.Icons
+Fable.MaterialUI.MaterialDesignIcons

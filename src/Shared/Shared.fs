@@ -96,34 +96,36 @@ module Domain =
 
     type FlashCardBack = {Answer : string; }
 
-    type FlashCardData = {Lesson:string; Front:FlashCardFront; Back:FlashCardBack; }
+    type FlashCardData = {Lesson:int; Front:FlashCardFront; Back:FlashCardBack; }
     type FlashCardDatas = { Data : FlashCardData list }
     type IFlashCardsApi =
-        { getAll : string list -> Async<FlashCardData list>
-          get : string list -> Async<FlashCardData>
-          getLessons : unit -> Async<string list> }
+        { getAll : int list -> Async<FlashCardData list>
+          get : int list -> Async<FlashCardData>
+          getLessons : unit -> Async<int list> }
 
+    type PracticeDirection = Forwards | Backwards
     type FlashCard = { FlashCard: FlashCardData; ShowAnswer:bool; }
-    type CardState =
-      | FlashCard of FlashCard
-      | FullList of FlashCardData list
 
     type LessonSelection =
-      { Lesson : string
+      { Lesson : int
         Selected : bool }
 
     type Model = 
       { Lessons : LessonSelection list
-        State : CardState }
+        FlashCardData : FlashCardData list
+        CardState : FlashCard option
+        PracticeDirection : PracticeDirection }
 
     type Msg =
       | ShowAnswer
       | SetCard of FlashCardData
-      | FetchQuestion
+      | ShowNextCard
       | SetList of FlashCardData list
-      | SetLessons of string list
-      | ToggleLessonSelection of string
-      | ToggleList
+      | SetLessons of int list
+      | ToggleLessonSelection of int
+      | ToggleAllLessonSelection
+      | ShowList
+      | Practice of PracticeDirection
 
   type PageModel =
     | EditorModel of Editor.Model

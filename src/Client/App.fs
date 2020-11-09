@@ -106,6 +106,7 @@ let update (msg : Shared.Domain.Msg) (model : Shared.Domain.Model) : Shared.Doma
       let m, cmd = FlashCards.update msg m
       { model with
           PageModel = FlashCardsModel m }, Cmd.map FlashCardsMsg cmd
+  | FlashCardsMsg _, _-> model, Cmd.none
   | PracticeMsg msg, PracticeModel m ->
       let m, cmd = Practice.update msg m
       { model with
