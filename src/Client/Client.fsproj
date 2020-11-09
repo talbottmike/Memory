@@ -16,12 +16,14 @@
         <Compile Include="Shared.fs" />
         <Compile Include="Api.fs" />
         <Compile Include="Styles.fs" />
+        <Compile Include="FlashCardInfo.fs" />
         <Compile Include="Views/Utils.fs" />
         <Compile Include="Views/Menu.fs" />
         <Compile Include="Pages/Home.fs" />
         <Compile Include="Pages/Editor.fs" />
         <Compile Include="Pages/Practice.fs" />
         <Compile Include="Pages/Entries.fs" />
+        <Compile Include="Pages/FlashCards.fs" />
         <Compile Include="App.fs" />
     </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />

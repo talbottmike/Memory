@@ -9,6 +9,7 @@ type Page =
   | Editor of Guid option
   | Entries
   | Practice of Guid option
+  | FlashCards
 
 let toHash =
   function
@@ -16,6 +17,7 @@ let toHash =
   | Page.Editor id -> id |> Option.map (fun x -> sprintf "#editor?id=%s" (x.ToString())) |> Option.defaultValue "#editor"
   | Page.Entries -> "#entries"
   | Page.Practice id -> id |> Option.map (fun x -> sprintf "#practice?id=%s" (x.ToString())) |> Option.defaultValue "#practice"
+  | Page.FlashCards -> "#flashcards"
 
 let guidParam name =
   (fun x -> 
@@ -33,6 +35,7 @@ let pageParser : Parser<Page -> Page,_> =
     [ map Page.Home (s "home")
       map Page.Editor (s "editor" <?> guidParam "id")
       map Page.Entries (s "entries")
-      map Page.Practice (s "practice" <?> guidParam "id") ]
+      map Page.Practice (s "practice" <?> guidParam "id")
+      map Page.FlashCards (s "flashcards") ]
 
 let urlParser location = parseHash pageParser location

@@ -80,11 +80,57 @@ module Domain =
       { Model: Model
         Dispatch: Msg -> unit }
 
+  module FlashCards =
+    type LatinText =
+      | Normal of string
+      | Macron of char
+
+    type FlashCardFront = { Question: string }
+    type Gender = | Feminine | Masculine | Neuter
+    type Declension = | First | Second | Third | Fourth | Fifth
+    type Conjugation = | First | Second | Third | Fourth
+    type EndingType = 
+      | NotApplicable
+      | Conjugation of Conjugation
+      | Declension of Declension
+
+    type FlashCardBack = {Answer : string; }
+
+    type FlashCardData = {Lesson:string; Front:FlashCardFront; Back:FlashCardBack; }
+    type FlashCardDatas = { Data : FlashCardData list }
+    type IFlashCardsApi =
+        { getAll : string list -> Async<FlashCardData list>
+          get : string list -> Async<FlashCardData>
+          getLessons : unit -> Async<string list> }
+
+    type FlashCard = { FlashCard: FlashCardData; ShowAnswer:bool; }
+    type CardState =
+      | FlashCard of FlashCard
+      | FullList of FlashCardData list
+
+    type LessonSelection =
+      { Lesson : string
+        Selected : bool }
+
+    type Model = 
+      { Lessons : LessonSelection list
+        State : CardState }
+
+    type Msg =
+      | ShowAnswer
+      | SetCard of FlashCardData
+      | FetchQuestion
+      | SetList of FlashCardData list
+      | SetLessons of string list
+      | ToggleLessonSelection of string
+      | ToggleList
+
   type PageModel =
     | EditorModel of Editor.Model
     | EntriesModel of Entries.Model
     | HomeModel of Home.Model
     | PracticeModel of Practice.Model
+    | FlashCardsModel of FlashCards.Model
       
   type Model = 
     { MenuModel : Menu.Model
@@ -97,6 +143,7 @@ module Domain =
     | EntriesMsg of Entries.Msg
     | HomeMsg of Home.Msg
     | PracticeMsg of Practice.Msg
+    | FlashCardsMsg of FlashCards.Msg
     | DemoteUser
     | SignedIn of UserProvider
     | SignedOut

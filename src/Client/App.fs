@@ -37,6 +37,9 @@ let urlUpdate (result:Page option) (model:Shared.Domain.Model) =
   | Some Page.Home ->
     let subModel, cmd = Client.Home.init None
     { model with PageModel = HomeModel subModel }, Cmd.map HomeMsg cmd
+  | Some Page.FlashCards ->
+    let subModel, cmd = Client.FlashCards.init ()
+    { model with PageModel = FlashCardsModel subModel }, Cmd.map FlashCardsMsg cmd
   | Some (Page.Practice guidOption) ->
     let subModel, cmd = 
       match model.PageModel with
@@ -99,6 +102,10 @@ let update (msg : Shared.Domain.Msg) (model : Shared.Domain.Model) : Shared.Doma
     { model with
         PageModel = HomeModel m }, Cmd.map HomeMsg cmd
   | HomeMsg _, _ -> model, Cmd.none
+  | FlashCardsMsg msg, FlashCardsModel m ->
+      let m, cmd = FlashCards.update msg m
+      { model with
+          PageModel = FlashCardsModel m }, Cmd.map FlashCardsMsg cmd
   | PracticeMsg msg, PracticeModel m ->
       let m, cmd = Practice.update msg m
       { model with
@@ -138,6 +145,7 @@ let viewContent (model: Model) dispatch =
     | EntriesModel m -> Entries.view m (EntriesMsg >> dispatch)
     | HomeModel m -> Home.view { Home.Props.Model = m; Home.Props.Dispatch = (HomeMsg >> dispatch); }
     | PracticeModel m -> Practice.view m (PracticeMsg >> dispatch)
+    | FlashCardsModel m -> FlashCards.view m (FlashCardsMsg >> dispatch)
   ]
 
 open Fable.React
