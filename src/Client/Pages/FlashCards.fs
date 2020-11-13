@@ -150,7 +150,7 @@ let showCard practiceDirection x (dispatch : Msg -> unit) =
                 Columns.columns [ Columns.IsCentered; Columns.IsMultiline; ]
                   [ 
                     Column.column [ 
-                      Column.Width(Screen.All, Column.IsHalf); 
+                      Column.Width(Screen.All, Column.IsFull); 
                     ] [ 
                       Heading.h1 [ Heading.Modifiers[ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ]][str answer]
                     ]
@@ -174,13 +174,15 @@ let showCardList cards (dispatch : Msg -> unit) =
   div []
     [ 
       Columns.columns [] [
-        Column.column [] [ Text.span [ Modifiers [ Modifier.TextWeight TextWeight.Bold ] ] [ str "Latin"] ]
-        Column.column [] [ Text.span [ Modifiers [ Modifier.TextWeight TextWeight.Bold ] ] [ str "English" ] ]
+        Column.column [Column.Width(Screen.All, Column.Is5);] [ Text.span [ Modifiers [ Modifier.TextWeight TextWeight.Bold ] ] [ str "Latin"] ]
+        Column.column [Column.Width(Screen.All, Column.Is5);] [ Text.span [ Modifiers [ Modifier.TextWeight TextWeight.Bold ] ] [ str "English" ] ]
+        Column.column [Column.Width(Screen.All, Column.Is2);] [ Text.span [ Modifiers [ Modifier.TextWeight TextWeight.Bold ] ] [ str "Lesson" ] ]
       ]
       for card in cards do
         Columns.columns [] [
-          Column.column [] [str card.Front.Question]
-          Column.column [] [str card.Back.Answer]
+          Column.column [Column.Width(Screen.All, Column.Is5);] [str card.Front.Question]
+          Column.column [Column.Width(Screen.All, Column.Is5);] [str card.Back.Answer]
+          Column.column [Column.Width(Screen.All, Column.Is2);] [str ( sprintf "%i" card.Lesson )]
         ]
     ]
 
