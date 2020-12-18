@@ -5,23 +5,24 @@ storage: none
 nuget FSharp.Core
 nuget Saturn
 nuget Saturn.Extensions.Authorization
-nuget Microsoft.AspNetCore.Authentication.Google
-nuget Microsoft.AspNetCore.Authentication.JwtBearer
-nuget Microsoft.Extensions.Configuration.Json
+nuget Microsoft.AspNetCore.Authentication.Google < 5
+nuget Microsoft.AspNetCore.Authentication.JwtBearer < 5
+nuget Microsoft.Extensions.Configuration.Json < 5
+nuget Microsoft.AspNetCore.Authentication.OpenIdConnect < 5
 nuget Google.Apis.Auth
 nuget Thoth.Json.Giraffe
 nuget FSharp.CosmosDb
 nuget FsToolkit.ErrorHandling
 nuget FsToolkit.ErrorHandling.TaskResult
-nuget Fable.Core ~> 3
-nuget Fable.Elmish ~> 3
-nuget Fable.Elmish.Debugger ~> 3
-nuget Fable.Elmish.HMR ~> 4
-nuget Fable.Elmish.React ~> 3
+nuget Fable.Core
+nuget Fable.Elmish
+nuget Fable.Elmish.Debugger
+nuget Fable.Elmish.HMR
+nuget Fable.Elmish.React
 nuget Fable.Elmish.Browser
 nuget Thoth.Json
 nuget Thoth.Fetch
-nuget Fable.React ~> 7
+nuget Fable.React
 nuget Fable.Browser.Navigator
 nuget Fable.Browser.Worker
 nuget Fable.Browser.Dom
