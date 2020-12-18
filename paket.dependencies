@@ -2,6 +2,7 @@ source https://api.nuget.org/v3/index.json
 framework: netcoreapp3.1
 storage: none
 
+nuget Feliz.MaterialUI.MaterialTable
 nuget FSharp.Core
 nuget Saturn
 nuget Saturn.Extensions.Authorization
@@ -42,4 +43,3 @@ group Build
     nuget Fake.Core.Target
     nuget Fake.DotNet.Cli
     nuget Fake.IO.FileSystem
-

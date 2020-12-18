@@ -7,6 +7,10 @@ open Fable.React
 open Feliz
 open Feliz.UseElmish
 open Feliz.MaterialUI
+open Feliz.MaterialUI.MaterialTable
+open Fable.Core.Experimental
+open Fable.Core
+open Fable.MaterialUI.Icons
 
 let getRandomFlashCard (lessons : int list) =  
   let rnd = System.Random()  
@@ -309,6 +313,17 @@ let containerBox (model : Model) (dispatch : Msg -> unit) =
         | None -> showCardList model.FlashCardData dispatch
       ]
     ]
+
+
+type private RowData =
+    { latin: string
+      english: string
+      lesson: string }
+
+let private (|Int|_|) (str: string) =
+    match System.Int32.TryParse(str) with
+    | true,res -> Some res
+    | _ -> None
  
 let view = React.functionComponent (fun (input: {| abandonComponent: unit -> unit; |}) ->
   let model, dispatch = React.useElmish(init (), update, [| |])
@@ -331,133 +346,277 @@ let view = React.functionComponent (fun (input: {| abandonComponent: unit -> uni
           match model.CardState with
           | Some _ -> ()
           | None ->
-            Mui.grid [
-              grid.container true
-              grid.spacing._1
-              grid.justify.flexStart
-              grid.alignItems.center
-              grid.children [
-                Mui.grid [
-                  grid.item true
-                  grid.children [ 
-                    Mui.typography [ 
-                      typography.variant.h5
-                      typography.children "Lessons"
+            Mui.materialTable [
+                //prop.style [ style.backgroundColor theme.palette.background.``default`` ]
+                materialTable.title (
+                  Html.div [
+                    Mui.grid [
+                      grid.container true
+                      grid.spacing._1
+                      grid.justify.flexStart
+                      grid.alignItems.center
+                      grid.children [
+                        Mui.grid [
+                          grid.item true
+                          grid.children [ 
+                            Mui.typography [ 
+                              typography.variant.h6
+                              typography.children "Flashcard dictionary"
+                            ]
+                          ]
+                        ]
+                      ]
                     ]
-                  ]
-                ]
-              ]
-            ]
-            Mui.grid [
-              grid.container true
-              grid.spacing._1
-              grid.justify.flexStart
-              grid.alignItems.center
-              grid.children [
-                Mui.grid [
-                  grid.item true
-                  grid.children [ 
-                    Mui.typography [ 
-                      typography.children "Select one or more lessons to practice"
-                    ]
-                  ]
-                ]
-              ]
-            ]
-            Mui.grid [
-              grid.container true
-              grid.spacing._1
-              grid.justify.flexStart
-              grid.alignItems.center
-              grid.children [
-                for l in model.Lessons do
-                  Mui.grid [
-                    grid.item true
-                    grid.children [
-                      Mui.button [
-                        prop.type'.submit
-                        if l.Selected then button.color.primary else button.color.default'
-                        button.variant.contained
-                        button.children (sprintf "%i" l.Lesson)
-                        prop.onClick (fun _ -> ToggleLessonSelection l.Lesson |> dispatch)
+                    Mui.grid [
+                      grid.container true
+                      grid.spacing._1
+                      grid.justify.flexStart
+                      grid.alignItems.center
+                      grid.children [
+                        Mui.grid [
+                          grid.item true
+                          grid.children [ 
+                            Mui.typography [ 
+                              typography.variant.body1
+                              typography.children "Click practice to view individual flash cards."
+                            ]
+                          ]
+                        ]
                       ]
                     ]
                   ]
-                Mui.grid [
-                  grid.item true
-                  grid.children [
-                    Mui.button [
-                      prop.type'.submit
-                      if model.Lessons |> List.exists (fun x -> not x.Selected) then button.color.default' else button.color.primary
-                      button.variant.contained
-                      button.children "All"
-                      prop.onClick (fun _ -> ToggleAllLessonSelection |> dispatch)
+                )
+                materialTable.columns [
+                    columns.column [
+                        column.title "Latin"
+                        column.field<RowData> (fun rd -> nameof rd.latin)
+                        // column.customFilterAndSearch<RowData> (fun term rowData _ -> match term with | Int i -> i = rowData.name.Length | _ -> false)
                     ]
-                  ]
+                    columns.column [
+                        column.title "English"
+                        column.field<RowData> (fun rd -> nameof rd.english)
+                    ]
+                    columns.column [
+                        column.title "Lesson"
+                        column.field<RowData> (fun rd -> nameof rd.lesson)
+                        // column.filtering false
+                        column.lookup<string,string> (allLessons |> List.map (fun x -> (sprintf "%i" x.Lesson,sprintf "%i" x.Lesson)))
+                    ]
+                    // columns.column [
+                    //     column.title "Birth Place"
+                    //     column.field<FlashCardData> (fun rd -> nameof rd.birthCity)
+                    //     column.lookup<int,string> [ 
+                    //         (34, "İstanbul")
+                    //         (63, "Şanlıurfa") 
+                    //     ]
+                    // ]
                 ]
-              ]
-            ]
+                materialTable.data (Client.FlashCardInfo.allFlashCards |> List.map (fun x -> { english = x.Back.Answer; latin = x.Front.Question; lesson = sprintf "%i" x.Lesson }))
+                materialTable.actions [
+                    // actions.action [
+                    //     action.icon (Mui.icon [ playCircleFilledIcon [] ])
+                    //     action.tooltip "Add User"
+                    //     action.isFreeAction true
+                    //     action.onClick<RowData list> (fun _ x -> ()) // input.dispatch AddRow)
+                    // ]
+                    // actions.action [
+                    //     action.icon (Mui.icon [ saveIcon [] ])
+                    //     action.tooltip "Save User"
+                    //     action.onClick<RowData> (fun _ rowData -> input.dispatch (SaveRow rowData.name))
+                    // ]
+                ]
+                materialTable.components [
+                  components.action<RowData> (fun props ->
+                      let propAction =
+                          match props.action with
+                          | U2.Case1 singAction -> singAction
+                          | U2.Case2 funAction -> funAction (props.data.Value)
+                      
+                      Mui.grid [
+                        grid.container true
+                        grid.spacing._1
+                        grid.justify.flexStart
+                        grid.alignItems.center
+                        grid.children [
+                          Mui.grid [
+                            grid.item true
+                            grid.children [ 
+                              Mui.typography [ 
+                                typography.variant.h6
+                                typography.children " dictionary"
+                              ]
+                              Mui.button [
+                                  if props.data.IsSome then prop.onClick <| fun ev -> propAction.onClick ev props.data.Value
+                                  button.color.primary
+                                  button.variant.contained
+                                  prop.style [ style.textTransform.none ]
+                                  button.size.small
+                                  prop.text "Practice"
+                              ]
+                            ]
+                          ]
+                        ]
+                      ]
+                  )
+                ]
+                materialTable.options [
+                    options.filtering true
+                ]
+            ]     
+          //   Mui.grid [
+          //     grid.container true
+          //     grid.spacing._1
+          //     grid.justify.flexStart
+          //     grid.alignItems.center
+          //     grid.children [
+          //       Mui.grid [
+          //         grid.item true
+          //         grid.children [ 
+          //           Mui.typography [ 
+          //             typography.variant.h5
+          //             typography.children "Search"
+          //           ]
+          //         ]
+          //       ]
+          //     ]
+          //   ]
+          //   Mui.grid [
+          //     grid.container true
+          //     grid.spacing._1
+          //     grid.justify.flexStart
+          //     grid.alignItems.center
+          //     grid.children [
+          //       Mui.grid [
+          //         grid.item true
+          //         grid.children [ 
+          //           Mui.typography [ 
+          //             typography.children "Search to narrow selection"
+          //           ]
+          //         ]
+          //       ]
+          //     ]
+          //   ]
+          //   Mui.grid [
+          //     grid.container true
+          //     grid.spacing._1
+          //     grid.justify.flexStart
+          //     grid.alignItems.center
+          //     grid.children [
+          //       Mui.grid [
+          //         grid.item true
+          //         grid.children [ 
+          //           Mui.textField [
+          //             textField.value ""
+          //             // textField.onChange (UpdateTitle >> dispatch)
+          //             textField.variant.outlined
+          //             textField.margin.normal
+          //             textField.required false
+          //             textField.fullWidth true
+          //             textField.id "Search"
+          //             textField.label "Search"
+          //             textField.name "search"
+          //             textField.autoComplete "search"
+          //             textField.autoFocus true
+          //             textField.placeholder "Search for cards containing word(s)"
+          //           ]
+          //         ]
+          //       ]
+          //     ]
+          //   ]
+          //   Mui.grid [
+          //     grid.container true
+          //     grid.spacing._1
+          //     grid.justify.flexStart
+          //     grid.alignItems.center
+          //     grid.children [
+          //       for l in model.Lessons do
+          //         Mui.grid [
+          //           grid.item true
+          //           grid.children [
+          //             Mui.button [
+          //               prop.type'.submit
+          //               if l.Selected then button.color.primary else button.color.default'
+          //               button.variant.contained
+          //               button.children (sprintf "%i" l.Lesson)
+          //               prop.onClick (fun _ -> ToggleLessonSelection l.Lesson |> dispatch)
+          //             ]
+          //           ]
+          //         ]
+          //       Mui.grid [
+          //         grid.item true
+          //         grid.children [
+          //           Mui.button [
+          //             prop.type'.submit
+          //             if model.Lessons |> List.exists (fun x -> not x.Selected) then button.color.default' else button.color.primary
+          //             button.variant.contained
+          //             button.children "All"
+          //             prop.onClick (fun _ -> ToggleAllLessonSelection |> dispatch)
+          //           ]
+          //         ]
+          //       ]
+          //     ]
+          //   ]
 
-          if model.FlashCardData.Length > 0 then
-            Html.div [
-              match model.CardState with
-              | Some _ -> ()
-              | None ->
-                Mui.grid [
-                  grid.container true
-                  grid.spacing._1
-                  grid.justify.flexStart
-                  grid.alignItems.center
-                  grid.children [
-                    Mui.grid [
-                      grid.item true
-                      grid.children [ 
-                        Mui.typography [ 
-                          typography.variant.h5
-                          typography.children "Practice"
-                        ]
-                      ]
-                    ]
-                  ]
-                ]
-                Mui.grid [
-                  grid.container true
-                  grid.spacing._1
-                  grid.justify.flexStart
-                  grid.alignItems.center
-                  grid.children [
-                    Mui.grid [
-                      grid.item true
-                      grid.children [
-                        Mui.button [
-                          prop.type'.submit
-                          button.color.primary
-                          button.variant.contained
-                          button.color.primary
-                          button.children "Latin to English"
-                          prop.onClick (fun _ -> Practice PracticeDirection.Forwards |> dispatch)
-                        ]
-                      ]
-                    ]
-                    Mui.grid [
-                      grid.item true
-                      grid.children [
-                        Mui.button [
-                          prop.type'.submit
-                          button.color.primary
-                          button.variant.contained
-                          button.color.primary
-                          button.children "English to Latin"
-                          prop.onClick (fun _ -> Practice PracticeDirection.Backwards |> dispatch)
-                        ]
-                      ]
-                    ]
-                  ]
-                ]
-            ]
-          if model.FlashCardData.Length = 0 
-          then ()
-          else containerBox model dispatch
+          // if model.FlashCardData.Length > 0 then
+          //   Html.div [
+          //     match model.CardState with
+          //     | Some _ -> ()
+          //     | None ->
+          //       Mui.grid [
+          //         grid.container true
+          //         grid.spacing._1
+          //         grid.justify.flexStart
+          //         grid.alignItems.center
+          //         grid.children [
+          //           Mui.grid [
+          //             grid.item true
+          //             grid.children [ 
+          //               Mui.typography [ 
+          //                 typography.variant.h5
+          //                 typography.children "Practice"
+          //               ]
+          //             ]
+          //           ]
+          //         ]
+          //       ]
+          //       Mui.grid [
+          //         grid.container true
+          //         grid.spacing._1
+          //         grid.justify.flexStart
+          //         grid.alignItems.center
+          //         grid.children [
+          //           Mui.grid [
+          //             grid.item true
+          //             grid.children [
+          //               Mui.button [
+          //                 prop.type'.submit
+          //                 button.color.primary
+          //                 button.variant.contained
+          //                 button.color.primary
+          //                 button.children "Latin to English"
+          //                 prop.onClick (fun _ -> Practice PracticeDirection.Forwards |> dispatch)
+          //               ]
+          //             ]
+          //           ]
+          //           Mui.grid [
+          //             grid.item true
+          //             grid.children [
+          //               Mui.button [
+          //                 prop.type'.submit
+          //                 button.color.primary
+          //                 button.variant.contained
+          //                 button.color.primary
+          //                 button.children "English to Latin"
+          //                 prop.onClick (fun _ -> Practice PracticeDirection.Backwards |> dispatch)
+          //               ]
+          //             ]
+          //           ]
+          //         ]
+          //       ]
+          //   ]
+          // if model.FlashCardData.Length = 0 
+          // then ()
+          // else containerBox model dispatch
         ]
       ]
     ]

@@ -6,7 +6,9 @@
         "@babel/polyfill": "^7.6.0",
         "@babel/preset-env": "^7.6.3",
         "@babel/runtime": "^7.6.3",
-        "@material-ui/core": "^4.9.13",
+        "@material-ui/core": "^4.11.2",
+        "@material-ui/icons": "4.9.1",
+        "@material-ui/lab": "4.0.0-alpha.28",
         "babel-loader": "^8.0.5",
         "bulma": "^0.8.0",
         "bulma-pageloader": "2.1.0",
@@ -19,6 +21,9 @@
         "fable-loader": "^2.1.8",
         "file-loader": "^4.2.0",
         "html-webpack-plugin": "^3.2.0",
+        "material-design-icons": "^3.0.1",
+        "material-table": "^1.69.2",
+        "mdi-material-ui": "^6.21.0",
         "mini-css-extract-plugin": "^0.5.0",
         "open-sans-fonts": "^1.5.1",
         "remotedev": "^0.2.9",
@@ -34,9 +39,7 @@
         "workbox-webpack-plugin": "^5.1.3"
     },
     "dependencies": {
-        "@material-ui/icons": "4.9.1",
-        "@material-ui/lab": "4.0.0-alpha.28",
-        "mdi-material-ui": "6.14.0",
+        "lodash": "^4.17.20",
         "react": "17.0.1",
         "react-dom": "17.0.1"
     }
