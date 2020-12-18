@@ -6,7 +6,8 @@ open Fable.Core.JsInterop
 open Fable.Import
 open Elmish.Navigation
 open Fable.React
-open Fulma
+open Feliz
+open Feliz.MaterialUI
 open Shared.Domain
 
 let goToUrl (e: Browser.Types.MouseEvent) =
@@ -43,14 +44,6 @@ let menuLink onClick description =
         OnTouchStart (fun _ -> onClick()) ]
         [ str description ]
 
-let onEnter msg dispatch =
-    function
-    | (ev:Browser.Types.KeyboardEvent) when ev.keyCode = 13. ->
-        ev.preventDefault()
-        dispatch msg
-    | _ -> ()
-    |> OnKeyDown
-
 let errorBox msg =
     div [] [
         match msg with
@@ -58,33 +51,18 @@ let errorBox msg =
         | Some e -> yield p [ClassName "text-danger"][str e]
     ]
 
-let validatedTextBox (onChange: string -> unit) key placeholder errorText text =
-    let status = if String.IsNullOrEmpty text then "" else "has-success"
-    div [ClassName ("form-group has-feedback " + status)] [
-         yield div [ClassName "input-group"] [
-             yield span [ClassName "input-group-addon"] [span [ClassName "glyphicon glyphicon glyphicon-pencil"] [] ]
-             yield input [
-                    Key key
-                    Name key
-                    HTMLAttr.Type "text"
-                    DefaultValue text
-                    ClassName "form-control"
-                    Placeholder placeholder
-                    OnChange (fun ev -> onChange ev.Value)]
-             match errorText with
-             | Some _e -> yield span [ClassName "glyphicon glyphicon-remove form-control-feedback"] []
-             | _ -> ()
-         ]
-         match errorText with
-         | Some e -> yield p [ClassName "text-danger"][str e]
-         | _ -> ()
-    ]
-
-let iconButton txt (fn : _ -> unit) icon =
-  Button.button 
-    [ Button.OnClick fn ]
-    [ Icon.icon [ ] [ icon [] ]
-      if String.IsNullOrWhiteSpace txt then () else span [] [ str txt ] ] 
+let iconButton (txt : string) (fn : _ -> unit) icon =
+  Mui.button [
+    // prop.type'.submit
+    button.fullWidth true
+    button.variant.contained
+    button.color.primary
+    // button.classes.root classes.submit
+    if String.IsNullOrWhiteSpace txt then () 
+    else button.children txt
+    button.endIcon icon
+    prop.onClick fn
+  ]
 
 let adminOnly (appUserOption : AppUser option) element =
   match appUserOption with
@@ -95,3 +73,44 @@ let subscriberOnly (appUserOption : AppUser option) element =
   match appUserOption with
   | Some u when u.Role = Some Admin || u.Role = Some Subscriber -> element
   | _ -> div [ ] [ ]
+
+
+let useStyles : unit -> _ = 
+  Styles.makeStyles(fun styles theme ->
+    let drawerWidth = 240
+    {|
+      root = styles.create [
+        style.display.flex
+      ]
+      appBar = styles.create [
+        style.zIndex (theme.zIndex.drawer + 1)
+      ]
+      appBarTitle = styles.create [
+        style.flexGrow 1
+      ]
+      drawer = styles.create [
+        style.width (length.px drawerWidth)
+        style.flexShrink 0  // TODO: Does this do anything?
+      ]
+      drawerPaper = styles.create [
+        style.width (length.px drawerWidth)
+      ]
+      content = styles.create [
+        style.width 0  // TODO: is there a better way to prevent long code boxes extending past the screen?
+        style.flexGrow 1
+        style.padding (theme.spacing 3)
+      ]
+      nestedMenuItem = styles.create [
+        style.paddingLeft (theme.spacing 4)
+      ]
+      toolbar = styles.create [
+        yield! theme.mixins.toolbar
+      ]
+      flashcardFront = styles.create [
+        style.backgroundColor theme.palette.primary.main
+      ]
+      flashcardBack = styles.create [
+        style.backgroundColor theme.palette.secondary.main
+      ]
+    |}
+  )

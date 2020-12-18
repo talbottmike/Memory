@@ -6,13 +6,11 @@ Fable.Elmish.HMR
 Fable.Elmish.Browser
 Thoth.Fetch
 Thoth.Json
-Fulma
-Fulma.Extensions.Wikiki.Tooltip
-Fulma.Extensions.Wikiki.PageLoader
 Fable.Browser.Navigator
 Fable.Browser.Worker
 Fable.Browser.Dom
 Feliz
+Feliz.UseElmish
 Feliz.MaterialUI
 Fable.MaterialUI.Icons
 Fable.MaterialUI.MaterialDesignIcons

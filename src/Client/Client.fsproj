@@ -1,32 +1,30 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
-        <DefineConstants>FABLE_COMPILER</DefineConstants>
-    </PropertyGroup>
-    <ItemGroup>
-        <None Include="index.html" />
-        <None Include="paket.references" />
-        <None Include="style.scss" />
-        <Compile Include="Version.fs" />
-        <Compile Include="WebStorage.fs" />
-        <Compile Include="Auth.fs" />
-        <Compile Include="Pages.fs" />
-        <Compile Include="Shared.fs" />
-        <Compile Include="Api.fs" />
-        <Compile Include="Styles.fs" />
-        <Compile Include="FlashCardInfo.fs" />
-        <Compile Include="Views/Utils.fs" />
-        <Compile Include="Views/Menu.fs" />
-        <Compile Include="Pages/Home.fs" />
-        <Compile Include="Pages/Editor.fs" />
-        <Compile Include="Pages/Practice.fs" />
-        <Compile Include="Pages/Entries.fs" />
-        <Compile Include="Pages/FlashCards.fs" />
-        <Compile Include="App.fs" />
-    </ItemGroup> 
-    <ItemGroup>
-        <ProjectReference Include="..\Shared\Shared.fsproj" />
-    </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="index.html" />
+    <None Include="paket.references" />
+    <None Include="style.scss" />
+    <Compile Include="Version.fs" />
+    <Compile Include="WebStorage.fs" />
+    <Compile Include="Auth.fs" />
+    <Compile Include="Pages.fs" />
+    <Compile Include="Shared.fs" />
+    <Compile Include="Api.fs" />
+    <Compile Include="Styles.fs" />
+    <Compile Include="Theme.fs" />
+    <Compile Include="FlashCardInfo.fs" />
+    <Compile Include="Views/Utils.fs" />
+    <Compile Include="Pages/Home.fs" />
+    <Compile Include="Pages/Editor.fs" />
+    <Compile Include="Pages/Practice.fs" />
+    <Compile Include="Pages/Entries.fs" />
+    <Compile Include="Pages/FlashCards.fs" />
+    <Compile Include="App.fs" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

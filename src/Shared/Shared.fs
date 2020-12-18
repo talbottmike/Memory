@@ -27,37 +27,6 @@ module Domain =
         OnLogout : unit -> unit
         OnToggleBurger: unit -> unit }
 
-  module Editor =
-    type Model = { User : AppUser option; EntryId : Guid option; Text : string; Title : string; } 
-    type Msg =
-      | UpdateText of string
-      | UpdateTitle of string
-      | AddOrUpdateEntry
-      | SaveEntry of MemorizationEntryDisplay
-      | SaveSampleEntry of MemorizationEntry
-      | SavedEntry
-      | CancelEntry
-      | RemoveEntry of Guid
-      | RemovedEntry
-      | EntryAddedToDatabase
-      | EntryRemovedFromDatabase
-    type Props = 
-      { Model: Model
-        Dispatch: Msg -> unit }
-
-  module Entries =
-    type Model = { User : AppUser option; Entries : MemorizationEntryDisplay list; }
-    type Msg =
-      | SelectEntry of Guid
-      | AddEntry
-      | UpdateEntry of Guid
-      | BrowserEntriesLoaded of MemorizationEntryDisplay list
-      | EntriesLoaded of MemorizationEntry list
-      | SavedEntries
-    type Props = 
-      { Model: Model
-        Dispatch: Msg -> unit }
-
   module Home =
     type Model = 
       { User : AppUser option; } 
@@ -128,24 +97,23 @@ module Domain =
       | Practice of PracticeDirection
 
   type PageModel =
-    | EditorModel of Editor.Model
-    | EntriesModel of Entries.Model
-    | HomeModel of Home.Model
-    | PracticeModel of Practice.Model
-    | FlashCardsModel of FlashCards.Model
+    | EditorModel of Guid option
+    | EntriesModel
+    | HomeModel// of Home.Model
+    | PracticeModel of Guid option
+    | FlashCardsModel
       
   type Model = 
     { MenuModel : Menu.Model
       IsLoading : bool
+      Entries : MemorizationEntryDisplay list
       PageModel : PageModel }
 
   /// The composed set of messages that update the state of the application
   type Msg =
-    | EditorMsg of Editor.Msg
-    | EntriesMsg of Entries.Msg
-    | HomeMsg of Home.Msg
-    | PracticeMsg of Practice.Msg
-    | FlashCardsMsg of FlashCards.Msg
+    // | EntriesMsg of Entries.Msg
+    // | HomeMsg of Home.Msg
+    // | PracticeMsg of Practice.Msg
     | DemoteUser
     | SignedIn of UserProvider
     | SignedOut

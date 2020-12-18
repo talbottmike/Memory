@@ -58,18 +58,18 @@ let layout (ctx : SiteContents) active bodyCnt =
 
         ]
         body [] [
-          nav [Class "navbar is-primary"] [
-            div [Class "navbar-brand"] [
-              a [Class "navbar-item"; Href "/"] [ img [ Model.HtmlProperties.Style [ CSSProperties.Width "2.5em" ]; Src "/shape.svg"; Alt "Logo"] ]
-              div [Class "navbar-item"; ] [ h2 [Class "title is-2" ] [ string "memoria" ] ]
-              span [Class "navbar-burger burger"; Custom ("data-target", "navbarMenu")] [
-                span [] []
-                span [] []
-                span [] []
-              ]
-            ]
-            div [Id "navbarMenu"; Class "navbar-menu"] menuEntries
-          ]
+          // nav [Class "navbar is-primary"] [
+          //   div [Class "navbar-brand"] [
+          //     a [Class "navbar-item"; Href "/"] [ img [ Model.HtmlProperties.Style [ CSSProperties.Width "2.5em" ]; Src "/shape.svg"; Alt "Logo"] ]
+          //     div [Class "navbar-item"; ] [ h2 [Class "title is-2" ] [ string "memoria" ] ]
+          //     span [Class "navbar-burger burger"; Custom ("data-target", "navbarMenu")] [
+          //       span [] []
+          //       span [] []
+          //       span [] []
+          //     ]
+          //   ]
+          //   div [Id "navbarMenu"; Class "navbar-menu"] menuEntries
+          // ]
           yield! bodyCnt
         ]
     ]

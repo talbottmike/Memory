@@ -21,14 +21,12 @@ nuget Fable.Elmish.React ~> 3
 nuget Fable.Elmish.Browser
 nuget Thoth.Json
 nuget Thoth.Fetch
-nuget Fable.React ~> 5
-nuget Fulma ~> 2
-nuget Fulma.Extensions.Wikiki.Tooltip
-nuget Fulma.Extensions.Wikiki.PageLoader
+nuget Fable.React ~> 7
 nuget Fable.Browser.Navigator
 nuget Fable.Browser.Worker
 nuget Fable.Browser.Dom
 nuget Feliz
+nuget Feliz.UseElmish
 nuget Feliz.MaterialUI
 nuget Fable.MaterialUI.Icons
 nuget Fable.MaterialUI.MaterialDesignIcons

@@ -2,25 +2,37 @@ module Client.Editor
 
 open Fable.Core
 open Fable.Core.JsInterop
-open Fable.React
-open Fable.React.Props
 open System
 open Shared.Domain
-open Shared.Domain.Editor
 open Elmish
-open Fulma
+open Feliz
+open Feliz.UseElmish
+open Feliz.MaterialUI
 open Fable.MaterialUI.MaterialDesignIcons
-open Client.Styles
-open Client.Utils
 open Shared
-open Thoth.Json
 open Elmish.React
 open Fetch.Types
 open Thoth.Fetch
-open Fulma.Extensions.Wikiki
 open Elmish.Navigation
 open Client.Pages
 
+type Model = { User : AppUser option; EntryId : Guid option; Text : string; Title : string; } 
+type Msg =
+  | UpdateText of string
+  | UpdateTitle of string
+  | AddOrUpdateEntry
+  | SaveEntry of MemorizationEntryDisplay
+  | SaveSampleEntry of MemorizationEntry
+  | SavedEntry
+  | CancelEntry
+  | RemoveEntry of Guid
+  | RemovedEntry
+  | EntryAddedToDatabase
+  | EntryRemovedFromDatabase
+type Props = 
+  { Model: Model
+    Dispatch: Msg -> unit }
+    
 let init userOption entryIdOption (entries : MemorizationEntryDisplay list) = 
   let foundEntry = 
     entryIdOption 
@@ -54,7 +66,7 @@ let addSampleEntry (token, request : MemorizationEntry) =
   let r = request
   Fetch.post<_, MemorizationEntry> (Shared.baseUrl + "api/addSample", data = r, headers = authenticatedJsonHeaders)
 
-let update (msg:Editor.Msg) model : Editor.Model*Cmd<Editor.Msg> =
+let update (msg:Msg) model : Model*Cmd<Msg> =
   match msg with
   | AddOrUpdateEntry ->
     let cmd =
@@ -123,35 +135,138 @@ let update (msg:Editor.Msg) model : Editor.Model*Cmd<Editor.Msg> =
   | UpdateTitle t ->
     { model with Title = t }, Cmd.none
 
-let view (model : Editor.Model) (dispatch : Editor.Msg -> unit) =
-  div [ ]
-    [ Columns.columns [ ]
-        [ Column.column [ ]
-            [ Field.div [ ]
-                [ Label.label [ ] [ str "Title" ]
-                  Control.div [ ]
-                    [ Input.text 
-                        [ Input.Color IsPrimary
-                          Input.Placeholder "Enter Title"
-                          Input.ValueOrDefault model.Title
-                          Input.OnChange (fun ev -> !!ev.target?value |> UpdateTitle |> dispatch) ] ] ]
-              Field.div [ ]
-                [ Label.label [ ] [ str "Memory text" ]
-                  Control.div [ ]
-                    [ Textarea.textarea
-                        [ Textarea.Color IsPrimary
-                          Textarea.Placeholder "Paste or enter text to memorize here"
-                          Textarea.ValueOrDefault model.Text
-                          Textarea.OnChange (fun ev -> !!ev.target?value |> UpdateText |> dispatch) ] [ ] ] ]
-              Field.div [ Field.IsGrouped ]
-                [ Control.div [ ]
-                    [ Button.button [ Button.Color IsPrimary; Button.OnClick (fun _ -> dispatch AddOrUpdateEntry ) ]
-                        [ str "Submit" ] ]
-                  Control.div [ ]
-                    [ Button.button [ Button.OnClick (fun _ -> dispatch CancelEntry) ]
-                        [ str "Cancel" ] ] ] ] ] 
-      match model.EntryId with
-      | None -> ()
-      | Some id ->
-        Columns.columns [ ] [ Column.column [ ] [ Styles.iconButton "Delete" (fun _ -> dispatch (RemoveEntry id) ) bookMinusIcon ] ]
-        Columns.columns [ ] [ Column.column [ ] [ Styles.iconButton "Add as sample" (fun _ -> dispatch (SaveSampleEntry { MemorizationEntry.Id = id; Text = model.Text; Title = model.Title })) accountSupervisorIcon |> adminOnly model.User ] ] ]
+let view = React.functionComponent (fun (input: {| userOption: AppUser option; entryIdOption: Guid option; entries : MemorizationEntryDisplay list; |}) ->
+  let model, dispatch = React.useElmish(init input.userOption input.entryIdOption input.entries, update, [| |])
+  Html.div [
+    Html.form [
+      Mui.grid [
+        grid.container true
+        grid.spacing._3
+        grid.justify.flexStart
+        grid.alignItems.center
+        grid.children [
+          Mui.grid [
+            grid.item true
+            grid.xs._12
+            grid.children [ 
+              Mui.textField [
+                textField.value model.Title
+                textField.onChange (UpdateTitle >> dispatch)
+                textField.variant.outlined
+                textField.margin.normal
+                textField.required false
+                textField.fullWidth true
+                textField.id "Title"
+                textField.label "Title"
+                textField.name "title"
+                textField.autoComplete "title"
+                textField.autoFocus true
+                textField.placeholder "Enter Title"
+              ]
+              Mui.textField [
+                textField.value model.Text
+                textField.onChange (UpdateText >> dispatch)
+                textField.variant.outlined
+                textField.margin.normal
+                textField.required true
+                textField.fullWidth true
+                textField.id "text"
+                textField.label "Memory text"
+                textField.name "text"
+                textField.autoComplete "text"
+                textField.autoFocus false
+                textField.multiline true
+                //textField.rows 5
+                textField.rowsMax 40
+                textField.placeholder "Paste or enter text to memorize here"
+              ]
+              Mui.grid [
+                grid.container true
+                grid.spacing._3
+                grid.item true
+                grid.children [
+                  Mui.grid [
+                    grid.item true
+                    grid.children [ 
+                      Mui.button [
+                        prop.type'.submit
+                        button.fullWidth true
+                        button.variant.contained
+                        button.color.primary
+                        // button.classes.root classes.submit
+                        button.children "Submit"
+                        //button.disabled model.IsBusy
+                        prop.onClick (fun e -> dispatch AddOrUpdateEntry)
+                      ]
+                    ]
+                  ]
+                  Mui.grid [
+                    grid.item true
+                    grid.children [ 
+                      Mui.button [
+                        prop.type'.reset
+                        button.fullWidth true
+                        button.variant.contained
+                        button.color.default'
+                        // button.classes.root classes.submit
+                        button.children "Cancel"
+                        //button.disabled model.IsBusy
+                        prop.onClick (fun e -> dispatch CancelEntry)
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+    match model.EntryId with
+    | None -> ()
+    | Some id ->
+      Mui.grid [
+        grid.container true
+        grid.spacing._3
+        grid.children [
+          Mui.grid [
+            grid.item true
+            grid.children [ 
+              Mui.button [
+                button.fullWidth true
+                button.variant.contained
+                button.color.default'
+                // button.classes.root classes.submit
+                button.children "Delete"
+                //button.disabled model.IsBusy
+                button.startIcon (bookMinusIcon [])
+                prop.onClick (fun e -> dispatch (RemoveEntry id))
+              ]
+            ]
+          ]
+        ]
+      ]
+      Mui.grid [
+        grid.container true
+        grid.spacing._3
+        grid.children [
+          Mui.grid [
+            grid.item true
+            grid.children [ 
+              Mui.button [
+                button.fullWidth true
+                button.variant.contained
+                button.color.default'
+                // button.classes.root classes.submit
+                button.children "Add as sample"
+                //button.disabled model.IsBusy
+                button.startIcon (accountSupervisorIcon [])
+                prop.onClick (fun e -> dispatch (SaveSampleEntry { MemorizationEntry.Id = id; Text = model.Text; Title = model.Title }))
+              ]
+            ]
+          ]
+        ]
+      ]
+      |> Styles.adminOnly model.User
+  ]
+)

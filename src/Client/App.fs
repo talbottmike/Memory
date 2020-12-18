@@ -1,13 +1,12 @@
 module Client.App
 
+open Fable.React
 open Elmish
 open Elmish.React
-open Fable.React
-open Fable.React.Props
 open Fetch.Types
 open Thoth.Fetch
-open Fulma
-open Fulma.Extensions.Wikiki
+open Feliz
+open Feliz.MaterialUI
 open Thoth.Json
 open System
 open Fable.Core
@@ -25,33 +24,21 @@ let urlUpdate (result:Page option) (model:Shared.Domain.Model) =
   | None ->
       handleNotFound model
   | Some (Page.Editor guidOption) ->
-    let subModel, cmd = 
-      match model.PageModel with
-      | PageModel.EntriesModel e ->
-        Client.Editor.init model.MenuModel.User guidOption e.Entries
-      | _ -> Client.Editor.init model.MenuModel.User guidOption []
-    { model with PageModel = EditorModel subModel }, Cmd.map EditorMsg cmd
+    { model with PageModel = EditorModel guidOption }, Cmd.none
   | Some Page.Entries ->
-    let subModel, cmd = Client.Entries.init model.MenuModel.User
-    { model with PageModel = EntriesModel subModel }, Cmd.map EntriesMsg cmd
+    { model with PageModel = EntriesModel }, Cmd.none
   | Some Page.Home ->
     let subModel, cmd = Client.Home.init None
-    { model with PageModel = HomeModel subModel }, Cmd.map HomeMsg cmd
+    { model with PageModel = HomeModel }, Cmd.none
   | Some Page.FlashCards ->
-    let subModel, cmd = Client.FlashCards.init ()
-    { model with PageModel = FlashCardsModel subModel }, Cmd.map FlashCardsMsg cmd
+    { model with PageModel = FlashCardsModel }, Cmd.none
   | Some (Page.Practice guidOption) ->
-    let subModel, cmd = 
-      match model.PageModel with
-      | PageModel.EntriesModel e ->
-        Client.Practice.init model.MenuModel.User guidOption e.Entries
-      | _ -> Client.Practice.init model.MenuModel.User guidOption []
-    { model with PageModel = PracticeModel subModel }, Cmd.map PracticeMsg cmd
+    { model with PageModel = PracticeModel guidOption }, Cmd.none
 
 let gapiImported: obj = Fable.Core.JsInterop.importAll "./platform.js"
 
 let init page : Shared.Domain.Model * Cmd<Shared.Domain.Msg> =
-  let model = { MenuModel = { User = None; IsBurgerOpen = false; }; IsLoading = true; PageModel = HomeModel Home.Model.Empty }
+  let model = { MenuModel = { User = None; IsBurgerOpen = false; }; IsLoading = true; PageModel = HomeModel; Entries = []; }
   urlUpdate page model
   
 let update (msg : Shared.Domain.Msg) (model : Shared.Domain.Model) : Shared.Domain.Model * Cmd<Shared.Domain.Msg> =
@@ -65,7 +52,7 @@ let update (msg : Shared.Domain.Msg) (model : Shared.Domain.Model) : Shared.Doma
         match u.Provider, model.PageModel with
         | Google g, EntriesModel _
         | Google g, HomeModel _ -> 
-          [ Cmd.OfPromise.perform Api.getEntries { u with MemoriaToken = Some t.Token } (Entries.Msg.EntriesLoaded >> EntriesMsg)
+          [ //Cmd.OfPromise.perform Api.getEntries { u with MemoriaToken = Some t.Token } (Entries.Msg.EntriesLoaded >> EntriesMsg)
             Navigation.newUrl (toHash Page.Entries) ]
           |> Cmd.batch
         | _ -> Cmd.none
@@ -87,40 +74,8 @@ let update (msg : Shared.Domain.Msg) (model : Shared.Domain.Model) : Shared.Doma
     { model with MenuModel = { model.MenuModel with User = Some { AppUser.Provider = p; MemoriaToken = None; Role = None; } }; }, cmd
   | AuthConfigured,_ ->
     { model with IsLoading = false; }, Cmd.none
-  | EditorMsg msg, EditorModel m ->
-      let m, cmd = Editor.update msg m
-      { model with
-          PageModel = EditorModel m }, Cmd.map EditorMsg cmd
-  | EditorMsg _, _ -> model, Cmd.none
-  | EntriesMsg msg, EntriesModel m ->
-      let m, cmd = Entries.update msg m
-      { model with
-          PageModel = EntriesModel m }, Cmd.map EntriesMsg cmd
-  | EntriesMsg _, _ -> model, Cmd.none
-  | HomeMsg msg, HomeModel m ->
-    let m, cmd = Home.update msg m
-    { model with
-        PageModel = HomeModel m }, Cmd.map HomeMsg cmd
-  | HomeMsg _, _ -> model, Cmd.none
-  | FlashCardsMsg msg, FlashCardsModel m ->
-      let m, cmd = FlashCards.update msg m
-      { model with
-          PageModel = FlashCardsModel m }, Cmd.map FlashCardsMsg cmd
-  | FlashCardsMsg _, _-> model, Cmd.none
-  | PracticeMsg msg, PracticeModel m ->
-      let m, cmd = Practice.update msg m
-      { model with
-          PageModel = PracticeModel m }, Cmd.map PracticeMsg cmd
-  | PracticeMsg _, _ -> model, Cmd.none
   //   | StorageFailure _ ->
   //     model, Cmd.none
-
-let button txt onClick =
-    Button.button
-        [ Button.IsFullWidth
-          Button.Color IsPrimary
-          Button.OnClick onClick ]
-        [ str txt ]
 
 open Fable.Core.JsInterop
 open Fable.Core
@@ -128,48 +83,125 @@ open Fable.Import
 open Fable.Core.JS
 open Fable.MaterialUI.MaterialDesignIcons
 
-let [<Literal>] ESC_KEY = 27.
-let [<Literal>] ENTER_KEY = 13.
-
-let internal onEnter msg dispatch =
-  function
-  | (ev:Browser.Types.KeyboardEvent) when ev.keyCode = ENTER_KEY ->
-    ev.target?value <- ""
-    dispatch msg
-  | _ -> ()
-  |> OnKeyDown
-
 let viewContent (model: Model) dispatch =
-  Section.section [ ] [
+  Html.div [
     match model.PageModel with
-    | EditorModel m -> Editor.view m (EditorMsg >> dispatch)
-    | EntriesModel m -> Entries.view m (EntriesMsg >> dispatch)
-    | HomeModel m -> Home.view { Home.Props.Model = m; Home.Props.Dispatch = (HomeMsg >> dispatch); }
-    | PracticeModel m -> Practice.view m (PracticeMsg >> dispatch)
-    | FlashCardsModel m -> FlashCards.view m (FlashCardsMsg >> dispatch)
+    | EditorModel m -> Editor.view {| userOption = model.MenuModel.User; entryIdOption = m; entries = model.Entries |}
+    | EntriesModel -> Entries.view {| userOption = model.MenuModel.User; |}
+    | HomeModel -> Home.view {| userOption = model.MenuModel.User; |}
+    | PracticeModel m -> Practice.view {| userOption = model.MenuModel.User; entryIdOption = m; entries = model.Entries |}
+    | FlashCardsModel -> FlashCards.view {| abandonComponent = (fun () -> ()) |} //m (FlashCardsMsg >> dispatch)
   ]
 
-open Fable.React
-open Fable.React.Props
-open Client.Styles
+let toolbarView model dispatch =
+  let classes = Styles.useStyles ()
+  Mui.toolbar [
+    Html.a [
+      prop.href "/"
+      prop.children [
+        Html.img [
+          prop.style [ 
+            style.width (length.em 2.5) 
+            style.marginRight (20)
+          ]
+          prop.src "shape.svg"        
+        ]
+      ]
+    ]
+    Mui.typography [
+      typography.variant.h3
+      typography.color.inherit'
+      typography.children "memoria"
+      typography.classes.root classes.appBarTitle
+    ]
+    Mui.button [
+      button.color.inherit'
+      match model.MenuModel.User with
+      | Some _ -> 
+        prop.onClick (fun _ -> Auth.signOut (LoggedOut >> dispatch))
+        button.children "Sign out"
+      | None -> 
+        prop.href "/app.html#home"
+        button.children "Sign In"
+    ]
+  ]
 
-let view model dispatch =
+let App = FunctionComponent.Of((fun (model, dispatch) ->
+  let classes = Styles.useStyles ()
   let hideLogin =
     match model.PageModel, model.MenuModel.User with
     | PageModel.HomeModel _, None -> false
     | _,_ -> true
+  Mui.themeProvider [
+    themeProvider.theme Theme.memoriaTheme
+    themeProvider.children [
+      Mui.cssBaseline []
+      Html.div [ 
+        prop.className classes.root
+        prop.key "Application"
+        prop.onLoad (fun _ -> Auth.init (fun () -> dispatch AuthConfigured) (SignedIn >> dispatch); )
+        prop.children [
+          Mui.cssBaseline []
+          Mui.backdrop [
+            backdrop.open' model.IsLoading
+          ]
+          Mui.appBar [
+            appBar.classes.root classes.appBar
+            appBar.color.default'
+            appBar.position.fixed'
+            appBar.children [
+              toolbarView model dispatch
+            ]
+          ]              
+          Html.main [
+            prop.className classes.content
+            prop.children [
+              Html.div [ prop.className classes.toolbar ]
+              Html.div [
+                prop.hidden hideLogin 
+                prop.children [
+                  Html.div [
+                    Mui.grid [
+                      grid.container true
+                      grid.children [ 
+                        Mui.grid [
+                          grid.item true
+                          grid.children [
+                            Html.div [ 
+                              prop.id "g-signin-btn" 
+                            ]
+                          ]
+                        ]
+                        Mui.grid [
+                          grid.item true
+                          grid.children [
+                            Mui.button [
+                              prop.type'.submit
+                              button.fullWidth true
+                              button.variant.contained
+                              button.color.primary
+                              button.children "View as sample user"
+                              button.startIcon (loginIcon [])
+                              prop.onClick (fun _ -> dispatch (SignedIn Sample))
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]    
+              viewContent model dispatch 
+            ]
+          ]
+        ]
+      ]
+    ]
+  ]
+), "App", memoEqualsButFunctions)
 
-  div [ Key "Application"; OnLoad (fun _ -> Auth.init (fun () -> dispatch AuthConfigured) (fun user -> dispatch (SignedIn user)); ) ] [
-    PageLoader.pageLoader [ PageLoader.Color IsLight; PageLoader.IsActive model.IsLoading ] [ ]
-    Menu.view { Model = model.MenuModel; OnLogout = (LoggedOut >> dispatch); OnToggleBurger = (MenuBurgerToggled >> dispatch) }
-    Section.section [(if hideLogin then Section.Props [ Style [ Props.Display DisplayOptions.None ] ] else Section.Props [ ] ) ] [ Container.container [ ]
-      [ Columns.columns [ Columns.IsCentered ]
-          [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
-              [ div [ Id "g-signin-btn" ] [ ] ] ]
-        Columns.columns [ Columns.IsCentered ]
-          [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ]
-              [ Styles.iconButton "View as sample user" (fun _ -> dispatch (SignedIn Sample)) loginIcon ] ] ] ]
-    viewContent model dispatch ]
+let view model dispatch =
+  App (model, dispatch)
 
 #if DEBUG
 open Elmish.Debug

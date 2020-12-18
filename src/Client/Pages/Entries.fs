@@ -1,20 +1,26 @@
 module Client.Entries
 
-open Fable.React
-open Fable.React.Props
 open System
 open Shared.Domain
-open Shared.Domain.Entries
 open Elmish
-open Fulma
-open Fulma.Extensions.Wikiki
+open Feliz
+open Feliz.UseElmish
+open Feliz.MaterialUI
 open Fable.MaterialUI.MaterialDesignIcons
-open Client.Styles
-open Client.Utils
 open Elmish.Navigation
 open Client.Pages
-open Thoth.Json
-open Fable.Core
+
+type Model = { User : AppUser option; Entries : MemorizationEntryDisplay list; }
+type Msg =
+  | SelectEntry of Guid
+  | AddEntry
+  | UpdateEntry of Guid
+  | BrowserEntriesLoaded of MemorizationEntryDisplay list
+  | EntriesLoaded of MemorizationEntry list
+  | SavedEntries
+type Props = 
+  { Model: Model
+    Dispatch: Msg -> unit }
 
 let init (userOption : AppUser option) =
   let cmds =
@@ -25,7 +31,7 @@ let init (userOption : AppUser option) =
       | None -> () ]
   { User = userOption; Entries = []; }, Cmd.batch cmds
 
-let update (msg:Entries.Msg) model : Entries.Model*Cmd<Entries.Msg> =
+let update (msg:Msg) model : Model*Cmd<Msg> =
   match msg with
   | SelectEntry guid ->
     let navCmd = Navigation.newUrl (toHash (Page.Practice (Some guid)))
@@ -48,30 +54,119 @@ let update (msg:Entries.Msg) model : Entries.Model*Cmd<Entries.Msg> =
   | SavedEntries ->
     model, Cmd.none
 
-let view (model : Entries.Model) (dispatch : Entries.Msg -> unit) =
-  div [ ] 
-    [ 
-      match model.Entries with
-      | [] ->
-        Columns.columns [ ] [ Column.column [ ] [ h3 [ ] [ str "Tap the blue book to create your first entry" ] ] ]
-        Columns.columns [ ] [ Column.column [ ] [ bookPlusIcon [ OnClick (fun _ -> dispatch AddEntry) :> IHTMLProp; Style [ CSSProp.Color "blue"; FontSize "50"; ] :> IHTMLProp ] ] ]
-      | _ ->
-        Columns.columns [ Columns.IsMobile ]
-          [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ Icon.icon [ ] [ bookshelfIcon [ ] ]; ]
-            Column.column [ ] [ Text.span [ Modifiers [ Modifier.TextWeight TextWeight.Bold ] ] [ str "Entries" ] ] ]
-        for x in model.Entries do
-          // Non mobile view
-          Columns.columns [ Columns.Modifiers [ Modifier.IsHidden (Screen.Mobile, true) ] ] 
-            [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ Styles.iconButton "" (fun _ -> dispatch (SelectEntry x.Id)) glassesIcon ]
-              Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] [ Styles.iconButton "" (fun _ -> dispatch (UpdateEntry x.Id)) pencilIcon ]
-              Column.column [ ] [ str x.Title ] ]
-          // Mobile view
-          ul [] [
-            li [ ] [
-              Columns.columns [ Columns.Modifiers [ Modifier.IsHidden (Screen.Tablet, true) ]; Columns.IsMobile ]
-                [ Column.column [ Column.Width (Screen.All, Column.IsNarrow) ] 
-                    [ Styles.iconButton "" (fun _ -> dispatch (SelectEntry x.Id)) glassesIcon
-                      Styles.iconButton "" (fun _ -> dispatch (UpdateEntry x.Id)) pencilIcon ]
-                  Column.column [ ] [ str x.Title ] ] ] ]
-        // Only subscribers can add more than one entry
-        Columns.columns [ ] [ Column.column [ ] [ Styles.iconButton "" (fun _ -> dispatch AddEntry) bookPlusIcon ] |> Styles.subscriberOnly model.User ] ]
+let view = React.functionComponent (fun (input: {| userOption: AppUser option; |}) ->
+  let model, dispatch = React.useElmish(init input.userOption, update, [| |])
+  Html.div [
+    match model.Entries with
+    | [] ->
+      Mui.grid [
+        grid.container true
+        grid.children [
+          Mui.grid [
+            grid.item true
+            grid.children [
+              Html.h3 [ Html.text "Tap the blue book to create your first entry" ]
+            ]
+          ]
+        ]
+      ]
+      Mui.grid [
+        grid.container true
+        grid.children [
+          Mui.grid [
+            grid.item true
+            grid.children [
+              Mui.fab [
+                fab.color.primary
+                fab.size.medium
+                fab.children [ 
+                    bookPlusIcon []
+                ]
+                prop.onClick (fun _ -> dispatch AddEntry) 
+              ]
+            ]
+          ]
+        ]
+      ]
+    | _ ->
+      Mui.grid [
+        grid.container true
+        grid.spacing._3
+        grid.justify.flexStart
+        grid.alignItems.center
+        grid.children [
+          Mui.grid [
+            grid.item true
+            grid.children [
+                bookshelfIcon [ icon.fontSize.large ]
+            ]
+          ]
+          Mui.grid [
+            grid.item true
+            grid.children [
+                Mui.typography [ 
+                  typography.variant.h5
+                  typography.children "Entries" 
+                ]
+            ]
+          ]
+        ]
+      ]
+      for x in model.Entries do
+        Mui.grid [
+          grid.container true
+          grid.spacing._1
+          grid.justify.flexStart
+          grid.alignItems.center
+          grid.children [
+            Mui.grid [
+              grid.item true
+              grid.children [
+                Mui.iconButton [
+                  prop.ariaLabel "View"
+                  iconButton.children [ glassesIcon [] ]
+                  prop.onClick (fun _ -> dispatch (SelectEntry x.Id)) 
+                ]
+              ]
+            ]
+            Mui.grid [
+              grid.item true
+              grid.children [
+                Mui.iconButton [
+                  prop.ariaLabel "Edit"
+                  iconButton.children [ pencilIcon [] ]
+                  prop.onClick (fun _ -> dispatch (UpdateEntry x.Id)) 
+                ]
+              ]
+            ]
+            Mui.grid [
+              grid.item true
+              grid.children [
+                  Html.text x.Title
+              ]
+            ]
+          ]
+        ]
+      // Only subscribers can add more than one entry
+      Mui.grid [
+        grid.container true
+        grid.spacing._3
+        grid.children [
+          Mui.grid [
+            grid.item true
+            grid.children [
+              Mui.fab [
+                fab.color.primary
+                fab.size.medium
+                fab.children [ 
+                    bookPlusIcon []
+                ]
+                prop.onClick (fun _ -> dispatch AddEntry) 
+              ]
+            ]
+          ]
+        ]
+      ]
+      |> Styles.subscriberOnly model.User
+  ]
+)

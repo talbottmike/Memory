@@ -2,22 +2,16 @@ module Client.Practice
 
 open Fable.Core
 open Fable.Core.JsInterop
-open Fable.React
-open Fable.React.Props
 open System
 open Shared.Domain
 open Shared.Domain.Practice
 open Elmish
-open Fulma
+open Feliz
+open Feliz.UseElmish
+open Feliz.MaterialUI
 open Fable.MaterialUI.MaterialDesignIcons
-open Client.Styles
-open Client.Utils
 open Shared
-open Thoth.Json
 open Elmish.React
-open Fetch.Types
-open Thoth.Fetch
-open Fulma.Extensions.Wikiki
 open Elmish.Navigation
 open Client.Pages
 
@@ -77,39 +71,117 @@ let viewTextPart (x : TextPart) (dispatch : Msg -> unit) =
     | TextType.Punctuation -> ignore
     | TextType.Word -> (fun _ -> dispatch (ToggleTextView { Id = x.Id; TextView = Shared.Helpers.toggleTextView x }))
 
-  Text.span [ Props [ OnClick g; Style [ CSSProp.FontFamily "monospace"; ] :> IHTMLProp ]
-              Modifiers [ Modifier.TextSize (Screen.All, TextSize.Is5) ] ]
-            [ str (if x.HasSpaceBefore then " " + t else t) ]
-
-let view (model : Practice.Model) (dispatch : Practice.Msg -> unit) =
-  div [ ] 
-    [ Columns.columns [ ]
-        [ Column.column [ ]
-            [ Styles.iconButton "" (fun _ -> dispatch ViewList ) arrowLeftIcon ] ]
-      
-      match model.CurrentEntry with
-      | None -> ()
-      | Some e ->
-        Columns.columns [ ] [ Column.column [ ] [ str e.Title ] ]
-        Columns.columns [ Columns.Props [ Tooltip.dataTooltip "Tap text to cycle through visibility" ]; Columns.CustomClass (Tooltip.ClassName+ " " + Tooltip.IsTooltipTop) ] [ Column.column [ ] 
-          [ for x in e.TextParts do
-                  viewTextPart x dispatch ] ]
-        Columns.columns [ ] [ 
-          Column.column [ ] [ 
-            Button.button
-              [ Button.OnClick (fun _ -> dispatch (BulkToggleTextView (TextView.NoText)))
-                Button.Props [ Tooltip.dataTooltip "Hide all text" ]
-                Button.CustomClass (Tooltip.ClassName+ " " + Tooltip.IsTooltipTop) ] 
-              [ str "Show blanks" ] ]
-          Column.column [ ] [ 
-            Button.button 
-              [ Button.OnClick (fun _ -> dispatch (BulkToggleTextView (TextView.Letters 1)))
-                Button.Props [ Tooltip.dataTooltip "Hide all but the first letter of each word" ]
-                Button.CustomClass (Tooltip.ClassName+ " " + Tooltip.IsMultiline) ] 
-              [ str "Show first letter" ] ]
-          Column.column [ ] [ 
-            Button.button 
-              [ Button.OnClick (fun _ -> dispatch (BulkToggleTextView (TextView.FullText)))
-                Button.Props [ Tooltip.dataTooltip "Show all text" ]
-                Button.CustomClass (Tooltip.ClassName+ " " + Tooltip.IsTooltipTop) ] 
-              [ str "Show full text" ] ] ] ]
+  Mui.typography [
+    prop.onClick g
+    prop.style [ style.fontFamily "monospace" ]
+    typography.variant.h6
+    typography.children (if x.HasSpaceBefore then " " + t else t)
+  ]
+let view = React.functionComponent (fun (input: {| userOption: AppUser option; entryIdOption: Guid option; entries : MemorizationEntryDisplay list; |}) ->
+  let model, dispatch = React.useElmish(init input.userOption input.entryIdOption input.entries, update, [| |])
+  Html.div [
+    Mui.grid [
+      grid.container true
+      grid.spacing._3
+      grid.justify.flexStart
+      grid.alignItems.center
+      grid.children [
+        Mui.grid [
+          grid.item true
+          grid.xs._12
+          grid.children [ 
+            Mui.fab [
+              fab.color.primary
+              fab.size.medium
+              fab.children [ 
+                  arrowLeftIcon []
+              ]
+              prop.onClick (fun _ -> dispatch ViewList)
+            ]
+          ]
+        ]
+      ]
+    ]
+    
+    match model.CurrentEntry with
+    | None -> ()
+    | Some e ->
+      Mui.grid [
+        grid.container true
+        grid.spacing._3
+        grid.justify.flexStart
+        grid.alignItems.center
+        grid.children [
+          Mui.grid [
+            grid.item true
+            grid.xs._12
+            grid.children [ 
+              Mui.typography [ 
+                typography.variant.h6
+                typography.children e.Title 
+              ]
+            ]
+          ]
+        ]
+      ]
+      Mui.grid [
+        grid.container true
+        grid.spacing._1
+        grid.justify.flexStart
+        grid.alignItems.center
+        grid.children [
+          for x in e.TextParts do
+            Mui.grid [
+              grid.item true
+              grid.children [ 
+                viewTextPart x dispatch
+              ]
+            ]
+        ]
+      ]
+      Mui.grid [
+        grid.container true
+        grid.spacing._3
+        grid.justify.flexStart
+        grid.alignItems.center
+        grid.children [
+          Mui.grid [
+            grid.item true
+            grid.children [ 
+              Mui.button [
+                prop.type'.reset
+                button.variant.outlined
+                button.color.default'
+                button.children "Show blanks"
+                prop.onClick (fun e -> dispatch (BulkToggleTextView (TextView.NoText)))
+              ]
+            ]
+          ]
+          Mui.grid [
+            grid.item true
+            grid.children [ 
+              Mui.button [
+                prop.type'.reset
+                button.variant.outlined
+                button.color.default'
+                button.children "Show first letter"
+                prop.onClick (fun e -> dispatch (BulkToggleTextView (TextView.Letters 1)))
+              ]
+            ]
+          ]
+          Mui.grid [
+            grid.item true
+            grid.children [ 
+              Mui.button [
+                prop.type'.reset
+                button.variant.outlined
+                button.color.default'
+                button.children "Show full text"
+                prop.onClick (fun e -> dispatch (BulkToggleTextView (TextView.FullText)))
+              ]
+            ]
+          ]
+        ]
+      ]
+  ]
+)

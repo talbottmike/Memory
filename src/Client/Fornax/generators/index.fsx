@@ -18,11 +18,53 @@ let generate' (ctx : SiteContents) (_: string) =
     |> List.map (Layout.postLayout true)
 
   Layout.layout ctx "Home" [
-    section [Class "hero is-light is-medium is-bold"] [
-      div [Class "hero-body"] [
-        div [Class "container has-text-centered"] [
-          h1 [Class "title"] [!!desc]
-          a [ Href "app.html"] [ string "Let's get started!"]
+    div [] [
+      nav [Class "navbar is-primary"] [
+        div [Class "navbar-brand"] [
+          a [Class "navbar-item"; Href "/"] [ img [ Model.HtmlProperties.Style [ CSSProperties.Width "2.5em" ]; Src "/shape.svg"; Alt "Logo"] ]
+          div [Class "navbar-item"; ] [ h2 [Class "title is-2" ] [ string "memoria" ] ]
+        ]
+        //div [Id "navbarMenu"; Class "navbar-menu"] menuEntries
+      ]
+      section [Class "hero is-fullheight-with-navbar is-light is-bold"] [
+        div [Class "hero-body"] [
+          div [Class "columns"] [
+            div [Class "column is-half"] [
+              div [Class "columns"] [
+                div [Class "column"] [
+                  div [Class "box"] [
+                    div [Class "container"] [
+                      h1 [Class "title"] [!!desc]
+                      h3 [] [string "memoria is a collection of tools to help with learning and memorization."]
+                    ]
+                  ]
+                ]
+              ]
+              div [Class "columns"] [
+                div [Class "column"] [
+                  div [Class "box"] [
+                    div [Class "container"] [
+                      a [ Class "button is-primary"; Href "app.html"] [ string "Text memorization"]
+                      h3 [] [string "Memorize any text passage."]
+                    ]
+                  ]
+                ]
+              ]
+              div [Class "columns"] [
+                div [Class "column"] [
+                  div [Class "box"] [
+                    div [Class "container"] [
+                      a [ Class "button is-primary"; Href "app.html#flashcards"] [ string "Latin Flashcards"]
+                      h3 [] [string "Memorize latin vocabulary."]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+            div [Class "column is-half"] [
+              img [Src "/images/floppy.png"; Alt "floppy"]
+            ]
+          ]
         ]
       ]
     ]
