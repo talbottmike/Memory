@@ -19,6 +19,8 @@
     <Compile Include="Theme.fs" />
     <Compile Include="FlashCardInfo.fs" />
     <Compile Include="Views/Utils.fs" />
+    <Compile Include="Components/FlashCardDictionary.fs" />
+    <Compile Include="Components/FlashCardPractice.fs" />
     <Compile Include="Pages/Home.fs" />
     <Compile Include="Pages/Editor.fs" />
     <Compile Include="Pages/Practice.fs" />
