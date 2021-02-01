@@ -4,7 +4,6 @@ open Fable.Core
 open Fable.Core.JsInterop
 open System
 open Shared.Domain
-open Shared.Domain.Practice
 open Elmish
 open Feliz
 open Feliz.UseElmish
@@ -12,9 +11,20 @@ open Feliz.MaterialUI
 open Fable.MaterialUI.MaterialDesignIcons
 open Shared
 open Elmish.React
-open Elmish.Navigation
+open Feliz.Router
 open Client.Pages
 
+type Model = { User : AppUser option; CurrentEntry : MemorizationEntryDisplay option; } 
+type Msg =
+  | ToggleTextView of TextViewRequest
+  | ViewList
+  | BulkToggleTextView of TextView
+  | SavedEntryPracticeState
+  | SampleEntryFetchResult of MemorizationEntry option
+type Props = 
+  { Model: Model
+    Dispatch: Msg -> unit }
+    
 let init userOption entryIdOption (entries : MemorizationEntryDisplay list) = 
   let foundEntry = 
     entryIdOption 
@@ -30,7 +40,7 @@ let init userOption entryIdOption (entries : MemorizationEntryDisplay list) =
     | None -> 
       match entryIdOption with
       | Some id -> Cmd.OfPromise.either Api.getSample id (SampleEntryFetchResult) (fun _ -> SampleEntryFetchResult None)
-      | None -> Navigation.newUrl (toHash Page.Entries)
+      | None -> Cmd.navigate (toHash Page.Entries)
   { User = userOption; CurrentEntry = foundEntry }, cmd
 
 let update (msg:Msg) model : Model*Cmd<Msg> =
@@ -38,11 +48,11 @@ let update (msg:Msg) model : Model*Cmd<Msg> =
   | _, SampleEntryFetchResult v ->
     let cmd = 
       if model.CurrentEntry.IsNone && v.IsNone then 
-        Navigation.newUrl (toHash Page.Entries)
+        Cmd.navigate (toHash Page.Entries)
       else Cmd.none
     { model with CurrentEntry = v |> Option.map Helpers.toDisplayModel }, cmd
   | None, _ ->
-    model, Navigation.newUrl (toHash Page.Entries)
+    model, Cmd.navigate (toHash Page.Entries)
   | Some e, BulkToggleTextView textView ->
     let newTextParts (textParts : TextPart list) = textParts |> List.map (fun x -> if x.TextType = TextType.Word then { x with TextView = textView } else x)
     { model with CurrentEntry = Some { e with TextParts = newTextParts e.TextParts; } }, Cmd.none
@@ -51,7 +61,7 @@ let update (msg:Msg) model : Model*Cmd<Msg> =
     { model with CurrentEntry = Some { e with TextParts = newTextParts e.TextParts; } }, Cmd.none
   | Some e, ViewList ->
     let savePracticeStateCmd = Cmd.OfFunc.perform (WebStorage.Entries.saveEntry) e (fun _ -> SavedEntryPracticeState)
-    let navCmd = Navigation.newUrl (toHash Page.Entries)
+    let navCmd = Cmd.navigate (toHash Page.Entries)
     model, Cmd.batch [savePracticeStateCmd; navCmd; ]
   | _,SavedEntryPracticeState ->
     model, Cmd.none

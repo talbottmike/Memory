@@ -3,14 +3,21 @@ open Fable.Core
 open Fable.Core.JsInterop
 open System
 open Shared.Domain
-open Shared.Domain.Home
 open Elmish
 open Fable.MaterialUI.MaterialDesignIcons
 open Client.Styles
-open Client.Utils
 open Feliz
 open Feliz.UseElmish
 open Thoth.Json
+
+type Model = 
+  { User : AppUser option; } 
+    static member Empty : Model = { User = None }
+type Msg =
+  | ToRemove
+type Props = 
+  { Model: Model
+    Dispatch: Msg -> unit }
 
 let init userOption = 
   let cmd =
@@ -19,7 +26,7 @@ let init userOption =
     | Some u -> Cmd.none
   { User = userOption }, cmd
 
-let update (msg:Home.Msg) model : Home.Model*Cmd<Home.Msg> =
+let update (msg:Msg) model : Model*Cmd<Msg> =
   model, Cmd.none
 
 let view = React.functionComponent (fun (input: {| userOption: AppUser option; |}) ->

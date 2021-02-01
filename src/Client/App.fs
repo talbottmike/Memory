@@ -12,70 +12,100 @@ open System
 open Fable.Core
 open Shared.Domain
 open Shared.Helpers
-open Elmish.Navigation
 open Client.Pages
+open Feliz.Router
 
-let handleNotFound (model: Shared.Domain.Model) =
+type UserState =
+  | UserFound of AppUser
+  | LookingUpUser
+  | UserNotFound
+  | Initializing
+  | LoggedOut
+
+type MenuModel = 
+  { User : UserState
+    IsBurgerOpen : bool }
+type MenuProps = 
+  { Model : MenuModel
+    OnLogout : unit -> unit
+    OnToggleBurger: unit -> unit }
+    
+type Model = 
+  { MenuModel : MenuModel
+    IsLoading : bool
+    Entries : MemorizationEntryDisplay list
+    Page : Page }
+
+/// The composed set of messages that update the state of the application
+type Msg =
+  | DemoteUser
+  | SignedIn of UserProvider
+  | SignedOut
+  | LoggedOut of unit
+  | AuthDisconnected
+  // | StorageFailure of exn
+  | TokenReceived of TokenResult
+  | MenuBurgerToggled of unit
+  | AuthConfigured
+  | PageChanged of Page
+  
+let handleNotFound (model: Model) =
     //JS.console.error("Error parsing url: " + Browser.Dom.window.location.href)
-    ( model, Navigation.newUrl (toHash Page.Home) )
+    ( model, Cmd.navigate(toHash Page.Home) )
 
-let urlUpdate (result:Page option) (model:Shared.Domain.Model) =
+let urlUpdate (result:Page option) (model:Model) =
   match result with
   | None ->
       handleNotFound model
-  | Some (Page.Editor guidOption) ->
-    { model with PageModel = EditorModel guidOption }, Cmd.none
-  | Some Page.Entries ->
-    { model with PageModel = EntriesModel }, Cmd.none
-  | Some Page.Home ->
-    let subModel, cmd = Client.Home.init None
-    { model with PageModel = HomeModel }, Cmd.none
-  | Some Page.FlashCards ->
-    { model with PageModel = FlashCardsModel }, Cmd.none
-  | Some (Page.Practice guidOption) ->
-    { model with PageModel = PracticeModel guidOption }, Cmd.none
+  | Some p ->
+    { model with Page = p }, Cmd.none
 
 let gapiImported: obj = Fable.Core.JsInterop.importAll "./platform.js"
 
-let init page : Shared.Domain.Model * Cmd<Shared.Domain.Msg> =
-  let model = { MenuModel = { User = None; IsBurgerOpen = false; }; IsLoading = true; PageModel = HomeModel; Entries = []; }
-  urlUpdate page model
+let init () : Model * Cmd<Msg> =
+  let urlSegments = Router.currentUrl()
+  let page = Pages.parseUrl urlSegments
+  let model = { MenuModel = { User = UserState.Initializing; IsBurgerOpen = false; }; IsLoading = true; Page = page; Entries = []; }
+  model, Cmd.none
   
-let update (msg : Shared.Domain.Msg) (model : Shared.Domain.Model) : Shared.Domain.Model * Cmd<Shared.Domain.Msg> =
-  match msg, model.PageModel with
+let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
+  match msg, model.Page with
   | MenuBurgerToggled (),_ ->
     { model with MenuModel = { model.MenuModel with IsBurgerOpen = not model.MenuModel.IsBurgerOpen }}, Cmd.none
   | TokenReceived t,_ ->
     match model.MenuModel.User with
-    | Some u ->
+    | UserState.UserFound u ->
       let cmd =   
-        match u.Provider, model.PageModel with
-        | Google g, EntriesModel _
-        | Google g, HomeModel _ -> 
+        match u.Provider, model.Page with
+        | Google g, Page.Entries _
+        | Google g, Page.Home -> 
           [ //Cmd.OfPromise.perform Api.getEntries { u with MemoriaToken = Some t.Token } (Entries.Msg.EntriesLoaded >> EntriesMsg)
-            Navigation.newUrl (toHash Page.Entries) ]
+            Cmd.navigate(toHash Page.Entries) ]
           |> Cmd.batch
         | _ -> Cmd.none
-      { model with MenuModel = { model.MenuModel with User = Some { u with MemoriaToken = Some t.Token; Role = t.Role; } } }, cmd
+      { model with MenuModel = { model.MenuModel with User = UserState.UserFound { u with MemoriaToken = Some t.Token; Role = t.Role; } } }, cmd
     | _ ->  model, Cmd.none
   | DemoteUser,_ ->
-    model.MenuModel.User
-    |> Option.map (fun x -> { model with MenuModel = { model.MenuModel with User = Some { x with Role = None; } } } )
-    |> Option.defaultValue model, Cmd.none
+    match model.MenuModel.User with
+    | UserState.UserFound u ->
+      { model with MenuModel = { model.MenuModel with User = UserState.UserFound { u with Role = None; } } }, Cmd.none
+    | _ -> model, Cmd.none
   | AuthDisconnected,_
   | LoggedOut _,_
   | SignedOut,_ ->
-    { model with MenuModel = { model.MenuModel with User = None; } }, Cmd.none
+    { model with MenuModel = { model.MenuModel with User = UserState.LoggedOut; } }, Cmd.none
   | SignedIn p,_ ->
     let cmd =
       match p with
-      | Sample -> Navigation.newUrl (toHash Page.Entries)
+      | Sample -> Cmd.navigate(toHash Page.Entries)
       | Google g -> Cmd.OfPromise.perform Api.getToken { IdToken = g.Token } TokenReceived
-    { model with MenuModel = { model.MenuModel with User = Some { AppUser.Provider = p; MemoriaToken = None; Role = None; } }; }, cmd
+    { model with MenuModel = { model.MenuModel with User = UserState.UserFound { AppUser.Provider = p; MemoriaToken = None; Role = None; } }; }, cmd
   | AuthConfigured,_ ->
     { model with IsLoading = false; }, Cmd.none
   //   | StorageFailure _ ->
   //     model, Cmd.none
+  | PageChanged p, _ ->
+    { model with Page = p }, Cmd.none
 
 open Fable.Core.JsInterop
 open Fable.Core
@@ -84,13 +114,17 @@ open Fable.Core.JS
 open Fable.MaterialUI.MaterialDesignIcons
 
 let viewContent (model: Model) dispatch =
+  let user =
+    match model.MenuModel.User with
+    | UserState.UserFound u -> Some u
+    | _ -> None
   Html.div [
-    match model.PageModel with
-    | EditorModel m -> Editor.view {| userOption = model.MenuModel.User; entryIdOption = m; entries = model.Entries |}
-    | EntriesModel -> Entries.view {| userOption = model.MenuModel.User; |}
-    | HomeModel -> Home.view {| userOption = model.MenuModel.User; |}
-    | PracticeModel m -> Practice.view {| userOption = model.MenuModel.User; entryIdOption = m; entries = model.Entries |}
-    | FlashCardsModel -> FlashCards.view {| abandonComponent = (fun () -> ()) |} //m (FlashCardsMsg >> dispatch)
+    match model.Page with
+    | Page.Editor m -> Editor.view {| userOption = user; entryIdOption = m; entries = model.Entries |}
+    | Page.Entries -> Entries.view {| userOption = user; |}
+    | Page.Home -> Home.view {| userOption = user; |}
+    | Page.Practice m -> Practice.view {| userOption = user; entryIdOption = m; entries = model.Entries |}
+    | Page.FlashCards -> FlashCards.view {| abandonComponent = (fun () -> ()) |} //m (FlashCardsMsg >> dispatch)
   ]
 
 let toolbarView model dispatch =
@@ -117,10 +151,10 @@ let toolbarView model dispatch =
     Mui.button [
       button.color.inherit'
       match model.MenuModel.User with
-      | Some _ -> 
+      | UserState.UserFound _ -> 
         prop.onClick (fun _ -> Auth.signOut (LoggedOut >> dispatch))
         button.children "Sign out"
-      | None -> 
+      | _ -> 
         prop.href "/app.html#home"
         button.children "Sign In"
     ]
@@ -129,9 +163,12 @@ let toolbarView model dispatch =
 let App = FunctionComponent.Of((fun (model, dispatch) ->
   let classes = Styles.useStyles ()
   let hideLogin =
-    match model.PageModel, model.MenuModel.User with
-    | PageModel.HomeModel _, None -> false
-    | _,_ -> true
+    match model.Page, model.MenuModel.User with
+    | _, UserState.Initializing
+    | _, UserState.LookingUpUser
+    | Page.FlashCards, _
+    | _, UserState.UserFound _ -> true
+    | _,_ -> false
   Mui.themeProvider [
     themeProvider.theme Theme.memoriaTheme
     themeProvider.children [
@@ -201,7 +238,12 @@ let App = FunctionComponent.Of((fun (model, dispatch) ->
 ), "App", memoEqualsButFunctions)
 
 let view model dispatch =
-  App (model, dispatch)
+  React.router [
+      router.onUrlChanged (parseUrl >> PageChanged >> dispatch)
+      router.children [
+        App (model, dispatch)
+      ]
+  ]
 
 #if DEBUG
 open Elmish.Debug
@@ -220,9 +262,7 @@ if hasField "serviceWorker" navigator then
 else
   JS.console.log "NOT Registering service worker"
 #endif
-
 Program.mkProgram init update view
-|> Program.toNavigable Pages.urlParser urlUpdate
 #if DEBUG
 |> Program.withConsoleTrace
 #endif

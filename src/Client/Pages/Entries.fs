@@ -7,8 +7,9 @@ open Feliz
 open Feliz.UseElmish
 open Feliz.MaterialUI
 open Fable.MaterialUI.MaterialDesignIcons
-open Elmish.Navigation
+open Feliz.Router
 open Client.Pages
+open Feliz.Delay
 
 type Model = { User : AppUser option; Entries : MemorizationEntryDisplay list; }
 type Msg =
@@ -34,10 +35,10 @@ let init (userOption : AppUser option) =
 let update (msg:Msg) model : Model*Cmd<Msg> =
   match msg with
   | SelectEntry guid ->
-    let navCmd = Navigation.newUrl (toHash (Page.Practice (Some guid)))
+    let navCmd = Cmd.navigate (toHash (Page.Practice (Some guid)))
     model, navCmd
   | UpdateEntry guid ->
-    let navCmd = Navigation.newUrl (toHash (Page.Editor (Some guid)))
+    let navCmd = Cmd.navigate (toHash (Page.Editor (Some guid)))
     model, navCmd
   | EntriesLoaded e ->
     let newEntries = e |> List.filter (fun x -> model.Entries |> List.exists (fun y -> y.Id = x.Id) |> not) |> List.map (fun x -> { Id = x.Id; Title = x.Title; Text = x.Text; TextParts = Shared.Helpers.getTextParts x.Text; HintLevel = None; })
@@ -49,7 +50,7 @@ let update (msg:Msg) model : Model*Cmd<Msg> =
     let newModel = { model with Entries = model.Entries |> List.append newEntries; }
     newModel, Cmd.none
   | AddEntry ->
-    let navCmd = Navigation.newUrl (toHash (Page.Editor None))
+    let navCmd = Cmd.navigate (toHash (Page.Editor None))
     model, navCmd
   | SavedEntries ->
     model, Cmd.none
@@ -59,30 +60,36 @@ let view = React.functionComponent (fun (input: {| userOption: AppUser option; |
   Html.div [
     match model.Entries with
     | [] ->
-      Mui.grid [
-        grid.container true
-        grid.children [
+      React.delay [
+        delay.waitFor 2000
+
+        delay.children [
           Mui.grid [
-            grid.item true
+            grid.container true
             grid.children [
-              Html.h3 [ Html.text "Tap the blue book to create your first entry" ]
+              Mui.grid [
+                grid.item true
+                grid.children [
+                  Html.h3 [ Html.text "Tap the blue book to create your first entry" ]
+                ]
+              ]
             ]
           ]
-        ]
-      ]
-      Mui.grid [
-        grid.container true
-        grid.children [
           Mui.grid [
-            grid.item true
+            grid.container true
             grid.children [
-              Mui.fab [
-                fab.color.primary
-                fab.size.medium
-                fab.children [ 
-                    bookPlusIcon []
+              Mui.grid [
+                grid.item true
+                grid.children [
+                  Mui.fab [
+                    fab.color.primary
+                    fab.size.medium
+                    fab.children [ 
+                        bookPlusIcon []
+                    ]
+                    prop.onClick (fun _ -> dispatch AddEntry) 
+                  ]
                 ]
-                prop.onClick (fun _ -> dispatch AddEntry) 
               ]
             ]
           ]

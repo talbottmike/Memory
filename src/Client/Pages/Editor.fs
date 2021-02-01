@@ -13,10 +13,11 @@ open Shared
 open Elmish.React
 open Fetch.Types
 open Thoth.Fetch
-open Elmish.Navigation
 open Client.Pages
+open Feliz.Router
 
 type Model = { User : AppUser option; EntryId : Guid option; Text : string; Title : string; } 
+
 type Msg =
   | UpdateText of string
   | UpdateTitle of string
@@ -112,7 +113,7 @@ let update (msg:Msg) model : Model*Cmd<Msg> =
   | CancelEntry
   | RemovedEntry
   | SavedEntry ->
-    let navCmd = Navigation.newUrl (toHash Page.Entries)
+    let navCmd = Cmd.navigate(toHash Page.Entries)
     model, navCmd
   | RemoveEntry guid ->
     let cmds =

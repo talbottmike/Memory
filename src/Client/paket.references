@@ -3,7 +3,6 @@ Fable.Core
 Fable.Elmish.Debugger
 Fable.Elmish.React
 Fable.Elmish.HMR
-Fable.Elmish.Browser
 Thoth.Fetch
 Thoth.Json
 Fable.Browser.Navigator
@@ -15,3 +14,5 @@ Feliz.MaterialUI
 Fable.MaterialUI.Icons
 Fable.MaterialUI.MaterialDesignIcons
 Feliz.MaterialUI.MaterialTable
+Feliz.Delay
+Feliz.Router

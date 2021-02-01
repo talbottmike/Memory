@@ -4,22 +4,10 @@ open Fable.React.Props
 open System
 open Fable.Core.JsInterop
 open Fable.Import
-open Elmish.Navigation
 open Fable.React
 open Feliz
 open Feliz.MaterialUI
 open Shared.Domain
-
-let goToUrl (e: Browser.Types.MouseEvent) =
-    e.preventDefault()
-    let href = !!e.target?href
-    Navigation.newUrl href |> List.map (fun f -> f ignore) |> ignore
-
-let viewLink page description =
-    a [ Style [ Padding "0 20px" ]
-        Href (Pages.toHash page)
-        OnClick goToUrl ]
-        [ str description ]
 
 let centerStyle direction =
     Style [ Display DisplayOptions.Flex

@@ -18,37 +18,6 @@ module Domain =
   type GoogleLoginRequest = { IdToken : string }
   type StorageUser = { EmailAddress : string; Role : UserRole option; Entries : MemorizationEntry list; }
 
-  module Menu =
-    type Model = 
-      { User : AppUser option
-        IsBurgerOpen : bool }
-    type Props = 
-      { Model : Model
-        OnLogout : unit -> unit
-        OnToggleBurger: unit -> unit }
-
-  module Home =
-    type Model = 
-      { User : AppUser option; } 
-        static member Empty : Model = { User = None }
-    type Msg =
-      | ToRemove
-    type Props = 
-      { Model: Model
-        Dispatch: Msg -> unit }
-
-  module Practice =
-    type Model = { User : AppUser option; CurrentEntry : MemorizationEntryDisplay option; } 
-    type Msg =
-      | ToggleTextView of TextViewRequest
-      | ViewList
-      | BulkToggleTextView of TextView
-      | SavedEntryPracticeState
-      | SampleEntryFetchResult of MemorizationEntry option
-    type Props = 
-      { Model: Model
-        Dispatch: Msg -> unit }
-
   module FlashCards =
     type LatinText =
       | Normal of string
@@ -78,51 +47,6 @@ module Domain =
     type LessonSelection =
       { Lesson : int
         Selected : bool }
-
-    type Model = 
-      { Lessons : LessonSelection list
-        FlashCardData : FlashCardData list
-        CardState : FlashCard option
-        PracticeDirection : PracticeDirection }
-
-    type Msg =
-      | ShowAnswer
-      | SetCard of FlashCardData
-      | ShowNextCard
-      | SetList of FlashCardData list
-      | SetLessons of int list
-      | ToggleLessonSelection of int
-      | ToggleAllLessonSelection
-      | ShowList
-      | Practice of PracticeDirection
-
-  type PageModel =
-    | EditorModel of Guid option
-    | EntriesModel
-    | HomeModel// of Home.Model
-    | PracticeModel of Guid option
-    | FlashCardsModel
-      
-  type Model = 
-    { MenuModel : Menu.Model
-      IsLoading : bool
-      Entries : MemorizationEntryDisplay list
-      PageModel : PageModel }
-
-  /// The composed set of messages that update the state of the application
-  type Msg =
-    // | EntriesMsg of Entries.Msg
-    // | HomeMsg of Home.Msg
-    // | PracticeMsg of Practice.Msg
-    | DemoteUser
-    | SignedIn of UserProvider
-    | SignedOut
-    | LoggedOut of unit
-    | AuthDisconnected
-    // | StorageFailure of exn
-    | TokenReceived of TokenResult
-    | MenuBurgerToggled of unit
-    | AuthConfigured
 
 module Helpers =
   open Domain
